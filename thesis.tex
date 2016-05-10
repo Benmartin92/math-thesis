@@ -1,0 +1,1193 @@
+\documentclass[a4paper, 12pt]{article}
+% Banach-tér értékű integrálok és a Radon-Nikodym tulajdonság
+% Nyelvi beállítások
+%\def\magyarOptions{defaults=hu-min}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{graphics}
+\usepackage{tikz}
+\usepackage{t1enc}
+\usepackage{mathrsfs}
+\usepackage{mathptm}
+\usepackage{physics}
+\usepackage{times}
+%\usepackage{euler}
+%\usepackage{concrete}
+%\usepackage{newtxtext}
+%\usepackage{newtxmath}
+\usepackage{appendix}
+\usepackage[nottoc,numbib]{tocbibind}
+\usepackage{geometry}
+ 
+% Sorköz és teljes oldalas kitöltés
+\linespread{1.3}
+\usepackage{fullpage}
+
+% Hiperlinkek
+\usepackage[pdfauthor={},pdftitle={}]{hyperref}
+\hypersetup{colorlinks=true, linkcolor=blue, citecolor=red, filecolor=magenta, 
+            urlcolor=cyan, linktocpage=true}
+
+% Sorszámozás            
+%\renewcommand{\thesection}{\thechapter.\arabic{section}}
+%\numberwithin{equation}{section}
+
+
+% Tételek, definíciók
+%\swapnumbers
+\newtheorem{lem}{Lemma}[section]
+\newtheorem{theo}[lem]{Theorem}
+\newtheorem{state}[lem]{Proposition}
+\newtheorem{defin}[lem]{Definition}
+\newtheorem{note}[lem]{Note}
+\newtheorem{example}[lem]{Example}
+\newtheorem{corollary}[lem]{Corollary}
+\newtheorem{remark}[lem]{Remark}
+
+% Megjegyzésekhez, amik nem szerepelnek majd végül a pdf-ben
+\newcommand{\ignore}[1]{}
+
+% Speciális jelölések
+\newcommand{\simp}{\mathop{\mathrm{Simp}}}
+\newcommand{\graph}{\mathop{\mathrm{graph}}}
+\newcommand{\dom}{\mathop{\mathrm{dom}}}
+
+% Tartalomjegyzék mélysége
+\setcounter{tocdepth}{4}
+%\renewcommand{\bibliofont}{\normalsize}
+\addto\captionsenglish{\renewcommand{\refname}{Bibliography}}
+
+% másik qed: ezt használom azokra a tételekre, amiket nem fogok bizonyítani
+\newcommand*{\qedb}{\hfill\ensuremath{\blacksquare}}
+
+% Irodalomjegyzék
+\usepackage[backend=bibtex,
+backref=true,
+style=alphabetic,
+citestyle=alphabetic]{biblatex}
+\addbibresource{references}
+
+\begin{document}
+\thispagestyle{empty}
+\newgeometry{
+    top=2.5cm,
+    bottom=2.5cm,
+    outer=2.5cm,
+    inner=2.5cm,
+}
+% Kezdőlap
+\begin{center}\renewcommand\baselinestretch{0.9}
+{\Large \textsc{Eötvös Loránd University}\\\textsc{Institute of Mathematics}\\} \hrulefill
+\vspace{1.0cm} {\huge \\ Benjámin Martin Seregi \\} \vspace{1cm}
+{\Huge\textsc{Banach Space Valued Integrals and the Radon\---Nikodym Property}\\ \vspace{0.5cm}}
+{\large\textsc BSc Thesis in Applied Mathematics}\\ \vspace{1cm}
+{\large \textit{Supervisor}\\
+\vspace{0.2cm}
+Dávid Kunszenti-Kovács\vspace{1.2cm}}\\
+\begin{figure}[!h]
+\begin{center}
+\resizebox{8.5cm}{!}
+{\includegraphics{elte_cimer_szines}}
+\end{center}
+\end{figure}
+{\large  Department of Applied Analysis and Computational Mathematics \\ \vspace{0.5cm}
+Budapest, 2016}
+\end{center}
+
+\pagebreak
+\pagenumbering{Roman}
+\section*{Acknowledgements}
+%\vspace*{\fill} 
+First of all, I would like to express my deep gratitude to Dávid Kunszenti-Kovács, my thesis supervisor, for his patient guidance.
+
+I would also like to thank my parents for their continuous support throughout my studies.
+%\vspace*{\fill}
+\newpage
+\tableofcontents
+\newpage
+\pagenumbering{arabic}
+\section{Introduction}
+\paragraph*{The motivation of the thesis} Given a measure space $(\Omega, \mathcal{A}, \mu)$ and a function $f$ from $\Omega$ to a Banach space $\mathcal{X}$ two questions naturally arise:
+\begin{itemize}
+\item How can we define the measurability of functions like $f$?
+\item If the notion of measurability is defined how could we integrate a measurable function?
+\end{itemize}
+These questions can be answered in various ways as many integration concepts have been studied \cite{schwabik} for such Banach space valued functions. 
+
+\paragraph*{The aim of the thesis} The primary aim of this thesis is to give an introduction to the two best known of them, namely to Pettis and Bochner integration. In Section \ref{sec:measurability} and Section \ref{sec:bochnerpettis} we address these questions.
+
+After having finished building these integration theories and proving some of their basic properties, we will be able to generalize some measure theoretic tools yielding the notion of vector measure (Section \ref{sec:vectormeasures}), i.e., a measure having Banach space valued range and the $L^p$ space of Bochner integrable functions.
+
+Our goal in Section \ref{sec:radon-nikodym-property}, with these new theories in hand, is to reformulate the following two fundamental theorems of measure theory by means of vector measures (together with their variations) and Banach space valued $L^p$ spaces.
+\begin{theo}[Radon\---Nikodym] Let $\mu$ and $\lambda$ be two finite measures such that $\mu \ll \lambda$. Then there exists a measurable function $f \colon \Omega \to [0, \infty]$ such that
+$$
+\mu(A) = \int_{A} f \dd{\lambda} \quad (A \in \mathcal{A}).
+$$
+\end{theo}
+
+\begin{theo}[Riesz] Let $L$ be a continuous functional of $L^1(\Omega, \mathcal{A}, \mu)$. Then there exists a function $g \in L^\infty(\Omega, \mathcal{A}, \mu)$ such that
+$$
+L(f) = \int_{\Omega} f g \dd{\mu} \quad (f \in L^1(\Omega, \mathcal{A}, \mu)).
+$$
+\end{theo}
+The main result of the thesis (Theorem \ref{theo:main-result}) will show that their vector valued counterparts are closely related to each other. In spite of the fact that both the Radon\---Nikodym and the Riesz representation theorem are generally true for an arbitrary, finite measure space their vector valued extensions may fail to be true in some Banach spaces. This justifies the necessity to introduce the Radon\---Nikodym property which is possessed by those Banach spaces where the Radon\---Nikodym theorem holds for vector measures. 
+
+In the end, some examples and counterexamples of Banach spaces with and without the Radon\---Nikodym property are present. 
+
+Appendix \ref{sec:sequences-and-series} outlines some modes of convergence developed in Banach spaces and then states some valuable theorems we can exploit when we characterize the integrability of Banach space valued functions. 
+
+\paragraph*{Notation}
+Throughout this thesis, $\Omega$ denotes an arbitrary set and $(\Omega, \mathcal{A}, \mu)$ a measure space. Unless otherwise stated $\mu$ is a finite measure. $\mathcal{X}$ will be a Banach space endowed with the norm $\| \cdot \|$. We often emphasize which norm is meant, e.g. the norm of an operator $T$ is denoted by $\| T \|_{\mathrm{op}}$. $\mathcal{X}^{*}$ means the dual space of a Banach space $\mathcal{X}$. An element in $\mathcal{X}^*$, that is, a continuous linear functional, is usually denoted by $x^*$. Given a vector $x \in \mathcal{X}$, the value of the functional $x^*$ at $x$ is $x^*(x)$.
+
+In this work, we consider various kinds of integrals, however we do not assign different symbols to them. If $f$ is some integrable function we denote its Bochner, Pettis, etc. integrals with respect to a measure $\mu$ on a measurable set $A$ by $\int_{A} f \dd{\mu}.$ The type of the integral will always be clear from the context.
+
+If $f\colon \Omega \to \mathcal{X}$ is a function, the notation $\| f(\omega) \|$ should be understood as a real valued function $\omega \mapsto \| f(\omega) \|$. 
+
+The symbol $\lim\limits^{w}_{n \to \infty}$ stands for weak limits and $\mathbb{K}$ for either $\mathbb{R}$ or $\mathbb{C}$. 
+
+We use the symbol $\square$ to indicate the end of proofs and $\blacksquare$ for theorems presented without proof.
+\newpage
+\section{Measurability of Banach space valued functions} \label{sec:measurability}
+\subsection{Simple functions and measurability}
+A function $f \colon \Omega \rightarrow \mathcal{X}$ is said to be a \textbf{simple function} or a \textbf{$\mu$-simple function} if it is of the form 
+$$
+f(\omega) = \sum^{k}_{i=1}\chi_{A_i}(\omega) x_i \quad (x_i \in \mathcal{X})
+$$ 
+for some $k \in \mathbb{N}$ and disjoint measurable sets $A_i  \in \mathcal{A}$ such that $\mu(A_i) < \infty$ $(i = 1, 2, \ldots, k)$.
+
+We say that the function $f \colon \Omega \rightarrow \mathcal{X}$ is \textbf{(strongly) $\mu$-measurable} if there exists a sequence of simple functions $(f_n)_{n \in \mathbb{N}}$ such that $f_n(\omega) \rightarrow f(\omega)$ for $\mu$-almost every $\omega \in \Omega$. 
+
+It immediately follows that every simple function is measurable. However, we postpone giving an example of a nontrivial measurable function until we get familiar with a more convenient condition for strong measurablity.
+\begin{note}\normalfont From now on, we omit the prefix $\mu$ when the measure is obvious.
+\end{note}
+An obvious generalization of simple functions is \textbf{countably valued functions}. These functions are of the form
+$$f(\omega) = \sum^{\infty}_{i =1}\chi_{A_i}(\omega)x_i \quad (x_i \in \mathcal{X})$$ 
+for some disjoint, measurable sets $A_i  \in \mathcal{A}$ such that $\mu(A_i) < \infty$ $(i \in \mathbb{N})$.
+\begin{state}\label{all:countable-valued-is-measurable}
+Let $f \colon \Omega \rightarrow \mathcal{X}$ be a countably valued function. Then $f$ is measurable.
+\end{state}
+\begin{proof}
+Let us consider the decomposition $\sum^{\infty}_{i =1}\chi_{A_i}x_i$ of $f$. Now, we define simple functions $f_n := \sum^{n}_{i=1} \chi_{A_i} x_i$.
+Clearly, the $f_n$ are simple functions, and $f_n(\omega) \rightarrow f(\omega)$ for all $\omega \in \Omega$.
+\end{proof}
+We will see that in case of $\sigma$-finite measures, the notion of measurability can be defined via countably valued functions.
+\begin{state}\label{all:normas-fuggveny-mertheto} If $f \colon \Omega \rightarrow \mathcal{X}$ is a measurable function then $\| f(\omega) \| \colon \Omega \rightarrow \mathbb{R}$ is also measurable.
+\end{state}
+\begin{proof}
+By definition, $f$ has a corresponding sequence of measurable simple functions $(f_n)_{n \in \mathbb{N}}$ such that $f(\omega) = \lim\limits_{n \to \infty} f_n(\omega)$ for $\mu$-almost every $\omega \in \Omega$. The functions $\omega \mapsto \| f_n(\omega) \|$ are simple real valued functions. We can use the triangle inequality to obtain $| \| f_n(\omega) \| - \| f(\omega) \| | \leqslant \| f_n(\omega) - f(\omega) \|$, thus we have $\lim\limits_{n \to \infty} \| f_n(\omega) \| = \| f(\omega) \|$.
+\end{proof}
+We define another type of measurability for Banach space valued functions. A function $f \colon \Omega \rightarrow \mathcal{X}$ is called \textbf{weakly $\mu$-measurable} if for each functional $x^* \in \mathcal{X}^*$ the function $x^*(f) \colon \Omega \rightarrow \mathbb{R}$ is measurable. The relationship between the two properties is established in \textit{Pettis' measurability theorem}, which we will prove later.
+\begin{note}\normalfont The usual facts about measurable functions under finite sums, scalar multiples and almost everywhere limits are satisfied, that is, if $f, g$ are measurable functions, $c \in \mathbb{R}$ and $(h_n)_{n \in \mathbb{N}}$ is a sequence of measurable functions converging $\mu$-almost everywhere to $h$ then
+\begin{itemize}
+\item $(f+g)(\omega)$
+\item $c\cdot g(\omega)$
+\item $h(\omega) := \lim\limits_{n \to \infty} h_n(\omega)$
+\end{itemize}
+are also measurable functions.
+\end{note}
+Even Egorov's theorem is still valid.
+\begin{theo}[Egorov] \label{all:egorov} Let $(\Omega, \mathcal{A}, \mu)$ be a finite measure space. Assume that $f \colon \Omega \rightarrow \mathcal{X}$ is a measurable function and $(f_n)_{n \in \mathbb{N}} \colon \Omega \rightarrow \mathcal{X}$ is a sequence of measurable functions such that $f_n(\omega) \rightarrow f(\omega)$ for $\mu$-almost every $\omega \in \Omega$. Then, for any $\varepsilon > 0$ we can find a measurable set $A \in \mathcal{A}$ with $\mu(A^c) < \varepsilon$ such that $f_n$ converges to $f$ uniformly on $A$.
+\end{theo}
+\begin{proof} By the assumptions, there exists a set $E$ with $\mu(E)=0$ such that $f_n$ converges to $f$ on $\Omega \setminus E$. For every $m, n \geqslant 1$ let $$A_{m,n} := \bigcap_{k \geqslant n} \lbrace \omega \in \Omega \setminus E : \| f_k(\omega) - f(\omega) \| \leqslant 1/m \rbrace.$$ Applying Proposition \ref{all:normas-fuggveny-mertheto} to the measurable function $f_k - f$, it is clear that $x \mapsto \| f_k(\omega) - f(\omega) \|$ is measurable, and we know that the sets of form $\lbrace \omega \in \Omega \setminus E : \| f_k(\omega) - f(\omega) \| \leqslant 1/m \rbrace$ are measurable. Finally, $A_{m,n}$ is an intersection of measurable sets, and thus is measurable itself.
+
+It is obvious that $A_{m, n} \subset A_{m, n+1}$ and $\bigcup^{\infty}_{n=1} A_{m,n} = \Omega \setminus E$ as well as $\bigcap_{n \in \mathbb{N}} \Omega \setminus A_{m,n} = \Omega \setminus \bigcup_{n \in  \mathbb{N}} A_{m,n} = E$ for all $m \geqslant 1$, therefore we have $\lim\limits_{n \in \mathbb{N}} \mu(\Omega \setminus A_{m,n}) = 0$. Thus, for any $\varepsilon > 0$, and each $m$ we can find an index $N(m)$ such that $\mu \left( \Omega \setminus A_{m, N(m)} \right) < \varepsilon / 2^m$. If we set $A$ to $\bigcap^{\infty}_{m=1} A_{m,N(m)}$, then 
+$$
+\Omega \setminus \bigcap^{\infty}_{m=1} A_{m,N(m)} = \Omega \setminus A = \bigcup^{\infty}_{m=1} \left( \Omega \setminus A_{m,N(m)} \right),
+$$
+and 
+$$
+\mu\left( \Omega \setminus A \right) = \mu \left(  \bigcup^{\infty}_{m=1} \left( \Omega \setminus A_{m,N(m)} \right) \right) < \sum^{\infty}_{m=1} \frac{\varepsilon}{2^m} = \varepsilon.
+$$
+Now, for any $x \in A$ and $n > N(m)$, we have $\| f_n(x) - f(x) \| < 1/m$, which is exactly the definition of the uniform convergence on $A$.
+\end{proof}
+The following two subsections are devoted to studying the relation between weak and strong measurability. We grasp their nature through a topological trait, namely separability. A Banach space $\mathcal{X}$ is called \textbf{separable} if it contains a countable \textbf{dense set}, i.e. a set $D$ whose closure $\overline{D}$ satisfies $\overline{D} = \mathcal{X}$.
+\subsection{A framework for a counterexample: a nonseparable Hilbert space}\label{section:nonseparable-hilbert-space}
+In this subsection, we construct a nonseparable Hilbert space which will be a useful tool to compare weak and strong measurability. After that, we give an example of a weakly measurable function which, as it turns out later, fails to be strongly measurable.
+
+To construct this Hilbert space, let $\Omega$ be an arbitrary uncountable set, and we use the usual $L^2$ space with the measure space $(\Omega, \mathcal{P}(\Omega), \mu)$ where the $\mu$ is the counting measure on $\mathcal{P}(\Omega)$, i.e.,
+$$
+\mu(A) := \left\{
+    \begin{array}{ll}
+      |A|, &\text{ if } A \text{ is finite} \\
+      \infty, &\text{ otherwise}
+    \end{array}
+\right. \quad (A \in \mathcal{P}(\Omega)).
+$$
+Now, our space $L^2(\Omega, \mathcal{P}(\Omega), \mu)$ consists of all measurable functions $f \colon \Omega \rightarrow \mathbb{R}$ with finite Lebesgue integral $\int_{\Omega} |f(\omega)|^2 \dd{\mu}$. Clearly, this is a subset of the countably valued functions with $\sum_{\omega \in \Omega} |f(\omega)|^2 < \infty,$ and forms a real vector space.\ignore{Minkowski}
+
+We have to define an inner product on $L^2(\Omega, \mathcal{P}(\Omega), \mu)$. If $f, g \in L^2(\Omega, \mathcal{P}(\Omega), \mu)$, the inner product $\langle f, g \rangle$ of these functions will be $\sum_{\omega \in \Omega} f(\omega)g(\omega)$. It can be shown, with the help of the Cauchy\---Schwarz inequality, that $\langle \cdot, \cdot \rangle$ is indeed an inner product: $\sum_{\omega \in \Omega} |f(\omega)g(\omega)| \leqslant \left( \sum_{\omega \in \Omega} |f(\omega)|^2 \right)^{1/2} \left( \sum_{\omega \in \Omega} |g(\omega)|^2 \right)^{1/2} < \infty$. The remaining inner product axioms are obvious. We can see that this inner product induces the usual $L^2$ norm denoted by $\| \cdot \|_2$, thus the Riesz\---Fischer theorem can be applied to see that our inner product space is in fact complete with this norm, and therefore is a Hilbert space.
+
+Now, we consider the one-point characteristic functions of $L^2(\Omega, \mathcal{P}(\Omega), \mu)$, that is, the set $\lbrace \chi_{\lbrace \omega \rbrace} : \omega \in \Omega \rbrace$. The distance between any two such functions is $\sqrt{2}$. To see this, let $\omega_1, \omega_2$ be two distinct elements in $\Omega$ and calculate 
+$$
+\| \chi_{\lbrace \omega_1 \rbrace} - \chi_{\lbrace \omega_2 \rbrace} \|^2_2 = \sum_{\omega \in \Omega}\left( (\chi_{\lbrace \omega_1 \rbrace} - \chi_{\lbrace \omega_2 \rbrace})(\chi_{\lbrace \omega_1 \rbrace} - \chi_{\lbrace \omega_2 \rbrace}) \right) = 2.
+$$
+We will show that $L^2(\Omega, \mathcal{P}(\Omega), \mu)$ cannot contain a countable dense set.
+\begin{lem}\label{all:nonseparable-hilbert-space} The space $L^2(\Omega, \mathcal{P}(\Omega), \mu)$ is not separable.
+\end{lem}
+\begin{proof}
+Consider the open balls with center point $\chi_{\lbrace \omega \rbrace}$ and radius $\sqrt{2}/2$. The intersection of any two such distinct open balls is empty. Therefore, if $D$ were a dense subset of $\Omega$ then each open ball would contain at least one distinct element from $D$. Since the number of such open balls is uncountable, the set $D$ would be also uncountable.
+\end{proof}
+\begin{example}[a weakly measurable function] \label{all:weakly-lebesgue-m-function}\normalfont
+We define a function $f \colon \Omega \rightarrow L^2(\Omega, \mathcal{P}(\Omega), \mu)$ with $f(\omega) := \chi_{\lbrace \omega \rbrace}(\cdot)$. Let $x^*$ be a functional in $L^2(\Omega, \mathcal{P}(\Omega), \mu)^*$. By the Riesz representation theorem, we can find an element $f_{x^*} \in L^2(\Omega, \mathcal{P}(\Omega), \mu)$ such that 
+$x^*(f(\omega)) = \langle f_{x^*}, f(\omega) \rangle = \langle f_{x^*}, \chi_{\lbrace \omega \rbrace} \rangle = f_{x^*}(\omega)$ which is a measurable function, and thus we proved that $f$ is weakly measurable.
+\end{example}
+\subsection{The relationship between strong and weak measurability} This subsection reveals that the two measurability notions coincide in separable Banach spaces.
+
+At first, we will see how the assumptions on $f$ can be weakened, using the Hahn\---Banach theorem, to keep $\omega \mapsto \| f(\omega) \|$ measurable. Before this, we introduce \textbf{almost everywhere separable valued} functions having separable image in $\mathcal{X}$ on the subset $\Omega \setminus E$ where $E$ denotes an appropriate set of measure zero.
+\begin{lem}\label{all:gyengen-merheto-szaparalhato-lemma} Let $f \colon \Omega \rightarrow \mathcal{X}$ be a weakly measurable and almost everywhere separable valued function. Then $\omega \mapsto \| f(\omega) \|$ is measurable.
+\end{lem}
+\begin{proof} Let $E$ be a set of measure zero such that $f(\Omega \setminus E)$ is separable and let $D:=\lbrace d_n : n \in \mathbb{N} \rbrace$ be a countable dense set in it. We define, with the help of the Hahn\---Banach theorem, a sequence $(x^*_n)_{n \in \mathbb{N}}$ of continuous functionals in $\mathcal{X}^*$ such that $x^*_n(d_n) = \| d_n \|$ and $\| x^*_n \|_{\mathrm{op}} = 1$.
+
+Now, we prove that for any $x \in f(\Omega \setminus E)$, $\sup\limits_{n \in \mathbb{N}} |x^*_n(x)| = \| x \|$. Since each $x^*_n$ has an operator norm of $1$, we can see that $|x^*_n(x)| \leqslant \| x \|$ for all $n \in \mathbb{N}$, thus $\| x\|$ is an upper bound. The following calculation shows that $\| x \|$ is the smallest: $| x^*_n(x) | = |x^*_n(x-d_n) + x^*_n(d_n)| \leqslant |x^*_n(x-d_n)| + \| d_n \| \leqslant \| x-d_n \| + \|d_n \|$. By the density of $D$, there is a subsequence in $D$ which converges to $x$, and so for any $\varepsilon > 0$ there exists an integer $N$ such that $\left | | x^*_N(x)| - \| x \| \right| < \varepsilon$, it follows that $\| x \| - \varepsilon < |x^*_N(x)| \leqslant \| x \|$.
+
+Therefore $\sup\limits_{n \in \mathbb{N}} |x^*_n(f(\omega))| = \| f(\omega) \|$ for all $\omega \in \Omega \setminus E$. By the weak measurability of $f$, the functions $\omega \mapsto x^*_n(f(\omega))$ are measurable and $\sup\limits_{n \in \mathbb{N}}|x^*_n(f(\omega))| = \|  f(\omega) \|$ is also measurable.
+\end{proof}
+We end this section with the proof of Pettis' measurability theorem.
+\begin{theo}[Pettis' measurability theorem]\label{all:pettis-m-theorem} Let $(\Omega, \mathcal{A}, \mu)$ be a $\sigma$-finite measure space.
+A function $f \colon \Omega \rightarrow \mathcal{X}$ is measurable if and only if it is
+
+(a) weakly measurable and
+
+(b) almost everywhere separable valued.
+\end{theo}
+\begin{proof} \emph{Only for finite measures.} The usual arguments extend it to the $\sigma$-finite case.
+
+To prove the necessity assume that $f \colon \Omega \rightarrow \mathcal{X}$ is a measurable function and let $(f_n)_{n \in \mathbb{N}}$ be a sequence of simple functions and $E$ a set of measure zero such that $f_n \rightarrow f$ on $\Omega \setminus E$.
+
+\emph{Necessity of (a).} Let $x^* \in \mathcal{X}^*$ be a continuous linear functional. By the linearity of $x^*$, the function $x^*(f_n) \colon \mathcal{X} \rightarrow \mathbb{R}$ is also simple and $x^*(f_n) \to x^*(f)$ as $n \to \infty$.
+
+\emph{Necessity of (b).} Every simple function $f_n$ has a countable range thus $\overline{\bigcup_{n \in \mathbb{N}} f_n(\Omega)} \supset f(\Omega \setminus E)$ is countable too and therefore separable.
+
+\emph{Sufficiency.} Let $\lbrace d_n : n \in \mathbb{N} \rbrace$ be a dense set in $f(\Omega \setminus E)$ for some measurable set $E$ with $\mu(E)=0$. Our hypotheses on $f$ enable us to use Lemma \ref{all:gyengen-merheto-szaparalhato-lemma} to obtain the measurability of $\| f(\omega) - d_n \|$ for all $n \geqslant 1$. Given $\varepsilon > 0$, we can construct measurable sets 
+$$
+E_n := \lbrace \omega \in \Omega \setminus E : \| f(\omega) - d_n \| < \varepsilon \rbrace,
+$$ 
+and by the density of the $d_n$, we can see that $\bigcup_{n \in \mathbb{N}} E_n = \Omega \setminus E$. Set $F_n$ to $E_n \setminus \bigcup^{n-1}_{k=1}E_k$. The $F_n$ are measurable with $\mu(F_n) < \infty$, disjoint, and $\bigcup_{n \in \mathbb{N}} F_n = \Omega \setminus E$ holds. Therefore
+\begin{displaymath}
+  f_{\varepsilon}(\omega) := \left\{
+    \begin{array}{llr}
+      d_n, &  \omega \in F_n & (n \in \mathbb{N})\\
+      0, &  \omega \in E.
+    \end{array}
+  \right.
+\end{displaymath}
+is a well defined, countably valued function, and $\| f(\omega) - f_{\varepsilon}(\omega) \| < \varepsilon$ for all $\omega \in \Omega \setminus E$. Now, Proposition \ref{all:countable-valued-is-measurable} completes the proof.
+\end{proof}
+We list here some useful corollaries of the this theorem.
+\begin{corollary}\label{all:mertheto-fuggveny-gyengen-is-meg-m-m-szep} Let $(\Omega, \mathcal{A}, \mu)$ be a measure space. If $f \colon \Omega \rightarrow \mathcal{X}$ is measurable then $f$ is weakly measurable and almost everywhere separable valued.
+\end{corollary}
+\begin{proof} The ''necessity part'' of the proof does not use the $\sigma$-finiteness of $(\Omega, \mathcal{A}, \mu)$.
+\end{proof}
+\begin{corollary}\label{all:pettis-corollary} Let $(\Omega, \mathcal{A}, \mu)$ be a $\sigma$-finite measure space and $\mathcal{X}$ a separable Banach space.  A function $f \colon \Omega \rightarrow \mathcal{X}$ is measurable if and only if it is weakly measurable. \qed
+\end{corollary}
+\begin{note}\normalfont A possible example of a separable Banach space is the space $C([0,1], \| \cdot \|_{\infty})$ of all real valued continuous functions on the unit interval $[0,1]$ with the supremum norm. This follows from the Stone\---Weierstrass theorem.
+\end{note}
+\begin{corollary} Let $(\Omega, \mathcal{A}, \mu)$ be a $\sigma$-finite measure space. A function $f \colon \Omega \rightarrow \mathcal{X}$ is measurable if and only if it is the limit almost everywhere of a sequence of countably valued functions. \qed
+\end{corollary}
+\begin{corollary}\label{all:merheto-fuggveny-egy-hatarerteke-megsz-erteku-fuggvenyeknek} Let $(\Omega, \mathcal{A}, \mu)$ be a $\sigma$-finite measure space. A function $f \colon \Omega \rightarrow \mathcal{X}$ is measurable if and only if it is the uniform limit almost everywhere of a sequence of countably valued functions. \qed
+\end{corollary}
+The usefulness of the following corollary arises from the fact that we later can characterize the integrability of a strongly measurable function through its ''countably valued part'' $h$.
+\begin{corollary}\label{all:measurabledecomposition} Let $\mu$ be a $\sigma$-finite measure. If $f \colon \Omega \to \mathcal{X}$ is measurable then for any $\varepsilon > 0$ there is a function $g \colon \Omega \to \mathcal{X}$ with $\| g(\omega)\| < \varepsilon$ ($\mu$-almost every $\omega \in \Omega$) and a countably valued function $h \colon \Omega \to \mathcal{X}$ such that
+$f(\omega) = g(\omega) + h(\omega)$ for $\mu$-almost every $\omega \in \Omega$.
+\end{corollary}
+\begin{proof}
+We just recall the proof of Theorem \ref{all:pettis-m-theorem} and consider the function $f_{\varepsilon}$. We showed that $\| f(\omega)-f_{\varepsilon}(\omega) \| < \varepsilon$ for all $\omega \in \Omega \setminus E$. Since $f_{\varepsilon}$ is countably valued then it is measurable (Proposition \ref{all:countable-valued-is-measurable}) thus $f-f_{\varepsilon}$ is measurable and bounded.
+
+Let $g(\omega) := f(\omega) - f_\varepsilon(\omega)$ and $h(\omega) := f_{\varepsilon}(\omega)$, and the proof is complete.
+\end{proof}
+Exploiting Corollary \ref{all:mertheto-fuggveny-gyengen-is-meg-m-m-szep} we can demonstrate that being weakly measurable is indeed a weaker property than being strongly measurable.
+\begin{example}[The function $f$ in Example \ref{all:weakly-lebesgue-m-function} is not strongly measurable.] \label{all:not-strongly-measurable-function}\normalfont
+To show that, we use Corollary \ref{all:mertheto-fuggveny-gyengen-is-meg-m-m-szep}. To obtain a contradiction, suppose that $f$ is measurable, then $f(\Omega)$ is a separable subset of $\Omega$ since $\varnothing$ is the only set of measure zero. However, we showed (Lemma \ref{all:nonseparable-hilbert-space}) that $f(\Omega) = \lbrace \chi_{\lbrace \omega \rbrace} : \omega \in \Omega \rbrace$ cannot be a separable subset of $\Omega$.
+\end{example}
+\begin{example}[a strongly measurable function I]\normalfont Let $\Omega$ be the unit interval and $f \colon \Omega \to C([0,1], \| \cdot \|_{\infty})$ given by $f(\omega) := t \mapsto \omega \cdot t$. If $x^* \in C[0,1]^*$ then $x^*(t \mapsto \omega \cdot t) = \omega \cdot x^*(t \mapsto t) = C_{x^*}\cdot \omega$ where $C_{x^*}$ is some constant depending only on $x^*$. Therefore
+$$
+\omega \mapsto x^*(f(\omega)) = \omega \mapsto C_{x^*}\cdot \omega \quad (x^* \in C[0,1]^*)
+$$
+is continuous and thus we proved that $f$ is weakly measurable. Since $C([0,1], \| \cdot \|_{\infty})$ is separable, $f$ is in fact measurable (Corollary \ref{all:pettis-corollary}).
+\end{example}
+\begin{example}[a strongly measurable function II]\normalfont Let $\Omega$ be as above and $f \colon \Omega \to C([0,1], \| \cdot \|_{\infty})$ defined by
+$f(\omega) := t \mapsto \sin(\omega \cdot t)$. We know that the map $t \mapsto \sin(t)$ is Lipschitz continuous since for all $t_1, t_2 \in \Omega$, we have
+$$
+|\sin(t_1) - \sin(t_2)| \leqslant |t_1 - t_2|.
+$$
+The following proves that $f$ is also Lipschitz continuous:
+$$
+\|f(\omega_1) - f(\omega_2) \|_{\infty} = \sup_{t \in [0,1]} \lbrace |\sin(\omega_1 \cdot t) - \sin(\omega_2 \cdot t)| \rbrace \leqslant |\omega_1 - \omega_2|.
+$$
+Now, let $x^*$ be a continuous functional in $C([0,1], \| \cdot \|_{\infty})^*$, then the map $\omega \mapsto x^*(f(\omega))$ is a composition of continuous functions and therefore is measurable.
+We proved that $f$ is weakly measurable and the separability of $C([0,1], \| \cdot \|_{\infty})$ implies its measurability (again, Corollary \ref{all:pettis-corollary}).
+\end{example}
+As a closing remark, we would like to generalize the idea introduced in the previous example.
+\begin{state} Let $\Omega \subset \mathbb{R}$ be a compact set and $f \colon \Omega \to \mathcal{X}$ a continuous function. Then $f$ is measurable.
+\end{state}
+\begin{proof} We prove that $f$ is weakly measurable and separable valued, thus $f$ is measurable by Theorem \ref{all:pettis-m-theorem}. 
+
+Since $f$ is continuous, for any $\varepsilon > 0$ and $\omega_0 \in \Omega$ there exists a $\delta > 0$ such that $|\omega - \omega_0| < \delta$ implies
+$$\| f(\omega) - f(\omega_0) \| < \varepsilon.$$
+If we take an arbitrary functional $x^* \in \mathcal{X}^{*}$ it follows that
+\begin{equation*}
+\begin{split}
+|x^*(f(\omega)) - x^*(f(\omega_0))| = |x^*(f(\omega)-f(\omega_0))| \leqslant \\ \| x^* \|_{\mathrm{op}} \|f(\omega) -f(\omega_0)\| \leqslant \varepsilon \| x^* \|_{\mathrm{op}}
+\end{split}
+\end{equation*}
+proving the weak measurability of $f$.
+
+The second assertion was that $f$ is separable valued. This follows from the fact that the continuous image of a compact set is compact and compactness implies separability.
+\end{proof}
+\paragraph*{References} The proof of Proposition \ref{all:normas-fuggveny-mertheto} is from \cite{schwabik} \textit{Proposition 1.1.3}. Subsection \ref{section:nonseparable-hilbert-space} is based on \cite{bachman} \textit{9.4 A nonseparable Hilbert space}. The idea of Example \ref{all:weakly-lebesgue-m-function} came from \cite{diestel-uhl} \textit{Example 5}. The proof of Egorov theorem (\ref{all:egorov}) is taken over from \cite{dunford-schwartz} \textit{III.6.11., 12 Theorem}, but I added some further explanations. The proof of Pettis' measurability theorem (\ref{all:pettis-m-theorem}) is based on \cite{diestel-uhl} \textit{II. Theorem 2} and \cite{denkowski-migorski-papageorgiou} \textit{Theorem 3.10.3}, an important step of the proof is moved to a separate lemma (\ref{all:gyengen-merheto-szaparalhato-lemma}) \cite{cohn} \textit{E.10 (Lemma)}.
+\section{Bochner and Pettis integration}\label{sec:bochnerpettis}
+\subsection{The Bochner integral}
+We define the \textbf{Bochner integral} of a simple function $f \colon \Omega \to \mathcal{X}$ to be
+$$\int_{\Omega} f \dd{\mu} := \sum^k_{i=1} \mu(A_i)x_i.$$
+
+When $A$ is a measurable subset of $\Omega$ the integral $\int_{A} f \dd{\mu}$ is defined in the obvious way, that is, $$\int_{A} f \dd{\mu} := \sum^k_{i=1} \mu(A_i \cap A)x_i.$$
+
+The following lemma verifies the consistency of the Bochner integral's definition in the sense that different simple function representations of $f$ will give the same integral.
+\begin{lem} \label{all:bochner_jol_def}
+The Bochner integral is well defined for simple functions.
+\end{lem}
+\begin{proof} Assume that our simple function $f$ has two representations, that is, 
+$$
+f = \sum^{n}_{i=1} \chi_{A_i} x_i = \sum^{m}_{j=1}\chi_{B_j} y_j.
+$$
+We can assume that $x_i \neq 0$ $(i = 1,2,\ldots, n)$ and $y_i \neq 0$ $(j = 1,2,\ldots,m)$ since the sums do not change by deleting these terms.
+In this case, it follows that we have
+$$
+\bigcup^{n}_{i=1} A_{i} = \bigcup^{m}_{j=1}B_{j}.
+$$
+Observe that the relation $\mu(A_i \cap B_j) y_j = \mu(A_i \cap B_j) x_i$ holds for  $(i = 1,2,\ldots, n)$ and $(j = 1,2,\ldots,m)$. If $A_i \cap B_j = \varnothing$ it is obvious since $\mu(A_i \cap B_j) = 0$, otherwise $\omega \in A_i$ and $\omega \in B_j$ implies that $f(\omega) = x_i = y_j$.
+Since both the sets $A_i$ and $B_j$ are disjoint, it follows that $A_i \cap B_j$ is also disjoint. Note that $A_i = \bigcup^{m}_{j=1} (A_i \cap B_j)$ $(i=1,2,\ldots,n)$. Therefore, by additivity of $\mu$, we have
+\begin{equation*}
+\begin{split}
+\int_{\Omega} \sum^{n}_{i=1} \chi_{A_i} x_i \dd{\mu} = \sum^{n}_{i=1} \mu(A_i) x_i = \sum^{m}_{j=1} \sum^{n}_{i=1}\mu(A_i \cap B_j)x_i = \\
+\sum^{m}_{j=1} \sum^{n}_{i=1}\mu(A_i \cap B_j)y_j = \sum^{m}_{j=1}\mu(B_j) y_j = \int_{\Omega} \sum^{m}_{j=1}\chi_{B_j} y_j \dd{\mu}
+\end{split}
+\end{equation*}
+as claimed.
+\end{proof}
+It follows from definition that if $f,g$ are simple functions and $c \in \mathbb{R}$ then $\int_{\Omega}(f+c \cdot g)\dd{\mu} = \int_{\Omega} f \dd{\mu} + c \cdot \int_{\Omega} g \dd{\mu}$, thus the Bochner integral defines a linear map on the space of measurable functions.
+\begin{state}\label{all:bochner-integral-becsles} Let $f,g \colon \Omega \rightarrow \mathcal{X}$ be simple functions, then $$\left \| \int_{\Omega} f \dd{\mu} \right \| \leqslant \int_{\Omega} \| f(\omega) \|\dd{\mu} \text{ and } \left \| \int_{\Omega} f \dd{\mu}- \int_{\Omega} g \dd{\mu} \right \| \leqslant \int_{\Omega} \| f(\omega) - g(\omega) \| \dd{\mu}.$$
+\end{state}
+\begin{proof}
+By Lemma \ref{all:bochner_jol_def}, we may assume that $f$ is represented as a simple function with disjoint sets $A_1, A_2, \ldots, A_k$ and coefficients $x_1, x_2, \ldots, x_k$. Then 
+$$
+\left \| \int_{\Omega} f \dd{\mu} \right \| = \left \| \sum^{k}_{i=1} \mu(A_i) x_i  \right \| \leqslant \sum^k_{i=1} \mu(A_i) \| x_i \| = \int_{\Omega} \| f(\omega) \| \dd{\mu}.
+$$
+The second inequality follows from the first one since $f-g$ is measurable and $\int_\Omega$ is linear.
+\end{proof}
+A measurable function $f \colon \Omega \rightarrow \mathcal{X}$ is called \textbf{Bochner integrable} if there exists a sequence of simple functions $(f_n)_{n \in \mathbb{N}}$ such that $\int_{\Omega} \| f_n(\omega) - f(\omega) \| \dd{\mu} \rightarrow 0$. The \textbf{Bochner integral} of $f$ is defined with the limit 
+$$
+\int_{\Omega} f \dd{\mu} := \lim\limits_{n \to \infty} \int_{\Omega} f_n \dd{\mu}.
+$$
+We proved that the Bochner integral is well defined for simple functions. We are now faced with a similar problem, that is, we need to show that the integral $\int_{\Omega} f \dd{\mu}$ exists and is independent of the sequences of simple functions $(f_n)_{n \in \mathbb{N}}$ with the limit function $f$.
+\begin{lem} The Bochner integral is well defined for the Bochner integrable functions.
+\end{lem}
+\begin{proof} \emph{Existence.} Let $f$ be a Bochner integrable function and $(f_n)_{n \in \mathbb{N}}$ be its defining sequence. We need to show that $\int_{\Omega} f_n \dd{\mu}$ converges as $n \rightarrow \infty$. It is sufficient to show that $(\int_{\Omega} f_n \dd{\mu})_{n \in \mathbb{N}}$ is a Cauchy sequence in $\mathcal{X}$, that is, for any $\varepsilon > 0$ there exists an index $N$ such that $\left \| \int_{\Omega} f_n \dd{\mu} - \int_{\Omega} f_m \dd{\mu} \right \| < \varepsilon$ for all $n,m \geqslant N$. We use Proposition \ref{all:bochner-integral-becsles} to estimate the integral 
+\begin{displaymath}
+\begin{split}
+\left \| \int_{\Omega} f_n \dd{\mu} - \int_{\Omega} f_m \dd{\mu} \right \| \leqslant \int_{\Omega} \| f_n(\omega) - f_m(\omega) \| \dd{\mu} =& \\
+ \int_{\Omega} \| f_n(\omega) - f(\omega) + f(\omega) - f_m(\omega) \|\dd{\mu} \leqslant & \\
+\int_{\Omega} \| f_n(\omega) - f(\omega) \| \dd{\mu} + \int_{\Omega} \| f(\omega) - f_m(\omega) \| \dd{\mu}.
+\end{split}
+\end{displaymath}
+For $\varepsilon/2$, choose an index $N$ such that $\int_{\Omega} \| f_n(\omega) - f(\omega) \| \dd{\mu} < \varepsilon/2$ for all $n \geqslant N$. Then 
+$$
+\left \| \int_{\Omega} f_n \dd{\mu} - \int_{\Omega} f_m \dd{\mu} \right \| < \frac{\varepsilon}{2} + \frac{\varepsilon}{2} = \varepsilon
+$$
+for all $n, m \geqslant N$.
+
+\emph{Uniqueness.} Let $(f_n)_{n \in \mathbb{N}}$ and $(g_n)_{n \in \mathbb{N}}$ be two defining sequences. We will prove that 
+$$
+\left \| \int_{\Omega} f_n \dd{\mu} - \int_{\Omega} g_n \dd{\mu} \right \| \rightarrow 0
+$$
+as $n \rightarrow \infty$. We again use Proposition \ref{all:bochner-integral-becsles}: $\left \| \int_{\Omega} f_n \dd{\mu} - \int_{\Omega} g_n \dd{\mu} \right \| \leqslant \int_{\Omega} \| f_n(\omega) - g_n(\omega) \| \dd{\mu} \leqslant \int_{\Omega} \| f_n(\omega) - f(\omega) + f(\omega) - g_n(\omega) \| \dd{\mu} \leqslant \int_{\Omega} \left( \| f_n(\omega) - f(\omega) \| + \| f(\omega) - g_n(\omega) \| \right) \dd{\mu} \rightarrow 0$ as $n \rightarrow \infty$. 
+\end{proof}
+The following theorem plays a central role in our further study as it gives a necessary and sufficient condition, through the Lebesgue integral, for being Bochner integrable.
+\begin{theo}[Bochner]\label{all:bochner-theorem}
+A measurable function $f \colon \Omega \rightarrow \mathcal{X}$ is Bochner integrable if and only if $\int_{\Omega} \| f(\omega) \| \dd{\mu} < \infty$.
+\end{theo}
+\begin{proof}
+\emph{Necessity.} Assume that $f$ is Bochner integrable and let $(f_n)_{n \in \mathbb{N}}$ be its defining sequence, then $\int_{\Omega} \| f(\omega) \| \dd{\mu}  = \int_{\Omega} \| f(\omega) - f_n(\omega) + f_n(\omega) \| \dd{\mu} \leqslant \int_{\Omega} \| f(\omega) - f_n(\omega) \| \dd{\mu} + \int_{\Omega} \| f_n(\omega) \| \dd{\mu} < \infty$ for a sufficiently large $n$.
+
+\emph{Sufficiency.} Since $f$ is measurable, we have a sequence of simple functions $(f_n)_{n \in \mathbb{N}}$ such that $f_n \rightarrow f$ almost everywhere. It follows that $|\|f_n(\omega)\| - \| f(\omega) \| | \leqslant \| f_n(\omega)  - f(\omega) \| \rightarrow 0$, that is, $\| f_n(\omega) \| \rightarrow \| f(\omega) \|$ for almost all $\omega \in \Omega$. We define a sequence of simple functions $g_n$ as follows: 
+$$
+g_n(\omega) := \left\{
+    \begin{array}{ll}
+      f_n(\omega), &\text{ if } \| f_n(\omega) \| \leqslant 2 \| f(\omega) \| \\
+      0, &\text{ otherwise}.
+    \end{array}
+\right.
+$$
+The sequence $(g_n)_{n \in \mathbb{N}}$ converges to $f$ for $\mu$-almost every $\omega \in \Omega$, and $\| f(\omega) - g_n(\omega) \| \leqslant 3 \| f(\omega) \|$ for all $\omega \in \Omega$ and all $n \in \mathbb{N}$. By Lebesgue's Dominated Convergence Theorem, we have $\lim\limits_{n \to \infty} \int_{\Omega} \| f(\omega) - g_n(\omega) \| \dd{\mu} = 0$ since $\int_{\Omega} 3\| f(\omega) \| \dd{\mu} < \infty$.
+\end{proof}
+In the this section we dealt with the foundations of the Bochner integral. As we have seen so far, the construction of the Bochner integral is a kind of generalization of the Lebesgue integral. The proofs also reflect this similarity, they mostly used the same arguments as for Lebesgue integrals, essentially replacing the absolute values with norms.
+\subsection{Some important properties of the Bochner integral}\label{all:bochner-prop} Our investigations now turn to the basic properties of the Bochner integral.
+\begin{state}\label{all:bochner-integral-becsles2} Let $f \colon \Omega \rightarrow \mathcal{X}$ be a Bochner integrable function then 
+$$\left \| \int_{\Omega} f \dd{\mu} \right \| \leqslant \int_{\Omega} \| f(\omega) \| \dd{\mu} .$$
+\end{state}
+\begin{proof}
+By definition $\left\| \int_{\Omega} f \dd{\mu} \right\| = \left\| \lim\limits_{n \to \infty} \int_{\Omega} f_n(\omega) \dd{\mu} \right\|$ where the $(f_n)_{n \in \mathbb{N}}$ are appropriate simple functions.  For simple functions the inequality is true (Proposition \ref{all:bochner-integral-becsles}), thus we have 
+$$
+ \left\| \lim\limits_{n \to \infty} \int_{\Omega} f_n(\omega) \dd{\mu} \right\|=\lim\limits_{n \to \infty} \left\| \int_{\Omega} f_n  \dd{\mu}  \right\| \leqslant \lim\limits_{n \to \infty} \int_{\Omega} \| f_n(\omega) \| \dd{\mu} = \int_{\Omega} \| f(\omega) \| \dd{\mu}
+$$
+as claimed.
+\end{proof}
+The following two propositions express that the Bochner integral of a measurable function possesses somewhat similar properties to measures. This remark later allows us to generalize the notion of measure.
+\begin{state}\label{all:nullmerteku-integralas} Let $f \colon \Omega \rightarrow \mathcal{X}$ be a Bochner integrable function, then $\lim\limits_{\mu(A) \to 0} \int_{A} f \dd{\mu} = 0$.
+\end{state}
+\begin{proof} It is sufficient to show that $\| \lim\limits_{\mu(A) \to 0}\int_{\Omega}f \dd{\mu} \| = 0$. For Lebesgue integrals the proposition is true. By Proposition \ref{all:bochner-integral-becsles2}, we have $\lim\limits_{\mu(A) \to 0}\left \| \int_{\Omega} f \dd{\mu} \right \| \leqslant \lim\limits_{\mu(A) \to 0}\int_{\Omega} \| f(\omega) \| \dd{\mu} = 0$, and the proof is completed.
+\end{proof}
+\begin{state}\label{all:integrate-on-union} Let $f\colon \Omega \rightarrow \mathcal{X}$ be a Bochner integrable function and $\mu$ a $\sigma$-finite measure. Let $(A_n)_{n \in \mathbb{N}}$ be a sequence of disjoint measurable sets and $A := \bigcup\limits^{\infty}_{n=1} A_n$, then
+$$
+\int_{A} f \dd{\mu} = \sum^{\infty}_{n=1} \int_{A_n} f \dd{\mu},
+$$
+and the sum is absolutely convergent.
+\end{state}
+\begin{proof}
+If one of the sets  $A_n$ had infinite measure then we could use the $\sigma$-finiteness of $\mu$ to decompose it into a union of finitely measurable sets. Therefore, there is no loss of generality in assuming that each $A_n$ has finite measure.
+
+From the Lebesgue version of this proposition and using the Bochner theorem (\ref{all:bochner-theorem}), we know that
+$$
+\sum\limits^{\infty}_{n=1} \left \|  \int_{A_n} f \dd{\mu} \right\| \leqslant \sum\limits^{\infty}_{n=1} \int_{A_n} \| f(\omega) \| \dd{\mu} = \int_{A} \| f(\omega) \| \dd{\mu} < \infty,
+$$
+thus the sum absolutely converges. To prove the limit note that if $A$ and $B$ are disjoint measurable sets then $\int_{A \cup B} f \dd{\mu} = \int_{A} f \dd{\mu} + \int_{B} f \dd{\mu}$, thus for every $m \in \mathbb{N}$, we have
+$$\left\| \int_{A} f \dd{\mu} - \sum^{m}_{n=1} \int_{A_n} f \dd{\mu} \right\| = \left \| \int_{\bigcup\limits^{\infty}_{n=m+1} A_n} f \dd{\mu} \right \|.$$
+
+Setting $B_{m}$ to $\bigcup^{\infty}_{n=m} A_n$ ($m \in \mathbb{N}$) yields a sequence with $B_{m+1} \subset B_{m}$ and $\bigcap^{\infty}_{m = 1} B_m = \varnothing$, therefore $\mu(B_m) \to 0$ as $m \to \infty$. By Proposition \ref{all:nullmerteku-integralas}, we can conclude that
+$$
+\lim_{m \to \infty} \left \| \int_{\bigcup\limits^{\infty}_{n=m+1} A_n} f \dd{\mu} \right \| = 0,
+$$
+which completes the proof.
+\end{proof}
+We have seen that if $f$ is measurable then it can be decomposed into a bounded $g$ and a countably additive function $h(\omega) = \sum^{\infty}_{i=1} \chi_{A_i}(\omega) x_i$. The next theorem says that the absolute convergence of $\sum^{\infty}_{i=1} \mu(A_i) x_i$ is a necessary and sufficient condition for being Bochner integrable. Later, it turns out that if the sum $\sum^{\infty}_{i=1} \mu(A_i)x_i$ is just unconditionally convergent then we are still able to integrate $f$ in some weaker sense.
+\begin{theo}\label{all:integrable-absolutely-convergent} Let $f \colon \Omega \to \mathcal{X}$ be a measurable function with the decomposition $f(\omega)=g(\omega)+h(\omega)$ introduced in Corollary \ref{all:measurabledecomposition} where $h(\omega) := \sum^{\infty}_{i=1} \chi_{A_i}(\omega) x_i$. Then $f$ is Bochner integrable if and only if $\sum^{\infty}_{i=1}\mu(A_i) x_i$ is absolutely convergent. Moreover, in case of absolute convergence, we have $\int_{\Omega} f \dd{\mu} = \int_{\Omega} g \dd{\mu} + \sum^{\infty}_{i=1}\mu(A_i) x_i$.
+\end{theo}
+\begin{proof}
+It is obvious that the sequence of simple functions $h_n(\omega) := \sum^{n}_{i=1} \chi_{A_i}(\omega)  x_i$ pointwise converges to $h$. We need to prove that $h$ is Bochner integrable, that is, $\int_{\Omega} \| h(\omega) \| \dd{\mu} < \infty$ (Bochner theorem \ref{all:bochner-theorem}).
+
+Due to the fact that $A_i$ $(i \in \mathbb{N})$ are disjoint we have $\| h_n(\omega) \| = \sum^{n}_{i=1} \chi_{A_i}(\omega) \| x_i \|$ for all $\omega \in \Omega$. We can then apply the Beppo Levi theorem since $\|h_n(\omega)\| \colon \Omega \to \mathbb{R}$ is measurable and $0 \leqslant \|h_n(\omega)\| \leqslant \|h_{n+1}(\omega)\|$ for all $\omega \in \Omega$ and $n \in \mathbb{N}$.
+Then
+$$
+\int_{\Omega} \|h(\omega)\| \dd{\mu}=\lim_{n \to \infty} \int_{\Omega} \|h_n(\omega)\| \dd{\mu} = \lim_{n \to \infty}  \sum^{n}_{i=1} \mu(A_i) \| x_i \|
+$$
+and $\lim\limits_{n \to \infty}  \sum^{n}_{i=1} \mu(A_i) \| x_i \| < \infty$ if and only if $\sum^{\infty}_{i=1}\mu(A_i) x_i$ is absolutely convergent.
+
+Finally, assume that $h$ is Bochner integrable, then
+$$\int_{\Omega} h \dd{\mu} = \lim_{n \to \infty} \int_{\Omega} h_n \dd{\mu} = \lim_{n \to \infty} \sum^{n}_{i = 1} \mu(A_i) x_i = \sum^{\infty}_{i = 1} \mu(A_i) x_i,$$
+and we know that $g$ is bounded and thus Bochner integrable, so we have
+$$\int_{\Omega} f \dd{\mu} = \int_{\Omega} (g+h) \dd{\mu} = \int_{\Omega} g \dd{\mu} + \sum^{\infty}_{i = 1} \mu(A_i) x_i.$$
+The proof is complete.
+\end{proof}
+The classical dominated convergence theorem remains valid for Bochner integrals.
+\begin{theo}[Dominated Convergence Theorem] Let $f_n \colon \Omega \rightarrow \mathcal{X}$ be a sequence of measurable functions. Suppose that $f_n(\omega) \rightarrow f(\omega)$ for $\mu$-almost every $\omega \in \Omega$, and that there exists a Lebesgue integrable function $g \colon \Omega \rightarrow \mathbb{R}$ such that $\| f_n(\omega) \| \leqslant g(\omega)$ for $\mu$-almost every $\omega \in \Omega$ $(n \in \mathbb{N})$. Then $f$ is Bochner integrable, and $\int_{\Omega} f_n \dd{\mu} \rightarrow \int_{\Omega} f \dd{\mu}$.
+\end{theo}
+\begin{proof} By Theorem \ref{all:bochner-theorem}, the $f_n$ are Bochner integrable. We need that $\| f(\omega) \|$ is also bounded by $g$: $\|f(\omega) \| = \| f(\omega) - f_n(\omega) + f_n(\omega) \| \leqslant \| f(\omega) - f_n(\omega) \| + g(\omega)$ for all $n \in \mathbb{N}$, now taking the limit $n \rightarrow \infty$ gives us $\| f(\omega) \| \leqslant g(\omega)$. Again, Theorem \ref{all:bochner-theorem} implies the Bochner integrability of $f$.
+
+We can apply the classical version of this theorem since $\| f_n(\omega) - f(\omega) \| \leqslant 2g(\omega)$, and by Proposition \ref{all:bochner-integral-becsles2}, we have
+$$\left \| \int_{\Omega} f_n \dd{\mu} - \int_{\Omega} f \dd{\mu} \right \| \leqslant \int_{\Omega} \| f_n(\omega) - f(\omega) \| \dd{\mu} \rightarrow 0$$
+as $n \rightarrow \infty$.
+\end{proof}
+\subsection{A theorem of Hille and its consequences}
+We examine how Bochner integrable functions behave when we compose them with closed operators. Two important consequences are also studied.  
+
+Throughout this part, let $(\mathcal{X}_1, \| \cdot \|_{\mathcal{X}_1}), (\mathcal{X}_2, \| \cdot \|_{\mathcal{X}_2})$ be Banach spaces and $L \colon \mathcal{X}_1 \supset \dom{L} \rightarrow \mathcal{X}_2$ be any linear operator.
+\subsubsection*{A short note on closed operators}
+An operator $L$ is a \textbf{closed operator} if its \textbf{graph}, i.e., $\graph L := \lbrace (x,L(x)) :  x \in \dom{L} \rbrace$ is a closed subset of $\mathcal{X}_1 \oplus \mathcal{X}_2$.
+
+Notice that we emphasized that $\dom{L}$ can be an arbitrary linear subspace in $\mathcal{X}_1$. This makes sense when we look at the following theorem.
+\begin{theo}[Closed graph theorem]\label{theo:closed-graph} Let $L \colon \mathcal{X}_1 \rightarrow \mathcal{X}_2$ be a linear operator defined everywhere on $\mathcal{X}_1$. Then $L$ is continuous if and only if it is closed. \qedb
+\end{theo}
+Note that one direction of the proof is easy since continuity unconditionally implies closedness. The second note is on the spaces $\mathcal{X}_1 \oplus \mathcal{X}_2$ and $\dom{L}$. It is known that $\mathcal{X}_1 \oplus \mathcal{X}_2$ is also a Banach space with the norm $\| (x_1,x_2) \| := \| x_1 \|_{\mathcal{X}_1} + \| x_2 \|_{\mathcal{X}_2}$ ($x_1 \in \mathcal{X}_1, x_2 \in \mathcal{X}_2$). By definition, $\dom{L}$ is a linear subspace of $\mathcal{X}_1$, and we can define a norm on it, namely the \textbf{graph norm} $\| x \|_{\mathrm{g}} := \|x\|_{\mathcal{X}_1} + \| L(x) \|_{\mathcal{X}_2}$.
+\begin{state} If $L$ is a closed operator, then $\dom{L}$ is a Banach space with respect to the graph norm.
+\end{state}
+\begin{proof}
+To see that the graph norm turns $\dom{L}$ into a Banach space, let $(x_n)_{n \in \mathbb{N}} \subset \dom{L}$ be a Cauchy sequence, that is, for any $\varepsilon > 0$ there exists an integer $N$ such that
+$$\| x_n - x_n \|_{\mathcal{X}_1} + \| L(x_n - x_m) \|_{\mathcal{X}_2} < \varepsilon$$
+for all $n,m \geqslant N$. Thus $x_n$ has a limit in $\mathcal{X}_1$, similarly $L(x_n)$ has a limit in $\mathcal{X}_2$, therefore the sequence $(x_n, L(x_n)) \subset  \graph{L}$ converges in $\mathcal{X}_1 \oplus \mathcal{X}_2$ which implies that the limit is also in $\graph{L}$.
+\end{proof}
+Further noteworthy observations are that $L$ is continuous on $(\dom{L},\| \cdot \|_{\mathrm{g}})$ since $\| L(x) \|$ $\leqslant \| x \| + \| L(x) \|$, and $\graph{L}$ is a closed subspace of $\mathcal{X}_1 \oplus \mathcal{X}_2$ and thus is a Banach space.
+
+We should tell something about the integration of a function $f \colon \Omega \rightarrow \mathcal{X}_1 \oplus \mathcal{X}_2$. Let $f_1 \colon \Omega \rightarrow \mathcal{X}_1, f_2\colon \Omega\rightarrow \mathcal{X}_2$ be the two components of $f$, that is, $f(\omega) = (f_1(\omega), f_2(\omega))$, and assume that $f_1, f_2$ are Bochner integrable functions, and let $f'_{n}, f''_{m}$ be their defining sequences. Then $f$ is Bochner integrable since 
+\begin{equation*}
+\begin{split}
+\int_{\Omega} \| (f_1(\omega)-f'_n(\omega), f_2(\omega)-f''_m(\omega)) \| \dd{\mu} = \\
+\int_{\Omega} \|f_1(\omega)-f'_n(\omega) \| \dd{\mu} + \int_{\Omega} \|f_2(\omega)-f''_m(\omega)\| \dd{\mu} < \infty.
+\end{split}
+\end{equation*}
+If $f'\colon \Omega \rightarrow \mathcal{X}_1$ and $f''\colon \Omega \rightarrow \mathcal{X}_2$ are two simple functions then the decomposition of $(f', f'')$
+$$
+(f'(\omega), f''(\omega))=\left(\sum^{n}_{i=1}\chi_{A_i}(\omega)x_i,0 \right) + \left(0, \sum^{m}_{i=1} \chi_{B_i}(\omega)y_i \right) \quad (x_i,y_i) \in \mathcal{X}_1 \times \mathcal{X}_2
+$$
+shows us that $\int_{\Omega} (f',f'') \dd{\mu} = (\int_{\Omega}f' \dd{\mu}, \int_{\Omega} f'' \dd{\mu})$. We proved the following fact:
+\begin{state}\label{all:integralas-szorzaton} Let $f \colon \Omega \rightarrow \mathcal{X}_1 \oplus \mathcal{X}_2$ be a function with Bochner integrable components $f_1 \colon \Omega \rightarrow \mathcal{X}_1$ and $f_2 \colon \Omega \rightarrow \mathcal{X}_2$. Then $f$ is Bochner integrable and $\int_{\Omega} f \dd{\mu} = \left(\int_{\Omega} f_1 \dd{\mu}, \int_{\Omega} f_2 \dd{\mu} \right).$ \qed
+\end{state}
+Now, we are able to give a quite simple proof of the Hille theorem.
+\begin{theo}[Hille]\label{all:hille-theorem}
+Let $\mathcal{X}_1, \mathcal{X}_2$ be Banach spaces and $L \colon \mathcal{X}_1 \rightarrow \mathcal{X}_2$ a closed linear operator. If $f \colon \Omega \rightarrow \dom{L}$ and $L(f(\omega))$ are Bochner integrable functions then
+$$
+L\left( \int_{\Omega} f(\omega) \dd{\mu} \right) = \int_{\Omega} L(f(\omega)) \dd{\mu}.
+$$
+\end{theo}
+\begin{proof} Let us define a function $g \colon \Omega \rightarrow \graph{L}$ through $g(\omega) := (f(\omega), L(f(\omega))$. By Proposition \ref{all:integralas-szorzaton}, $g$ is Bochner integrable and its integral is
+$$\int_{\Omega} g(\omega) \dd{\mu} = \left(\int_{\Omega} f(\omega) \dd{\mu}, \int_{\Omega} L(f(\omega)) \dd{\mu}\right) \in \graph{L},$$
+which means that $L\left( \int_{\Omega} f(\omega) \dd{\mu} \right) = \int_{\Omega} L(f(\omega)) \dd{\mu}$.
+\end{proof}
+In the Hille theorem, we assumed $L(f(\omega))$ to be a Bochner integrable function, however, if $L$ is a continuous linear operator then it is a simple matter to check that $L(f(\omega))$ is Bochner integrable: $\|L(f(\omega))\| \leqslant \| L \|_{\mathrm{op}} \| f(\omega) \|$ and it follows that $\|L \|_{\mathrm{op}} \int_{\Omega} \| f(\omega) \| \dd{\mu} < \infty$.
+\begin{corollary}\label{all:hille-for-continuos-lin-functionals}
+Let $\mathcal{X}$ be Banach space and $L$ a continuous linear operator on $\mathcal{X}$. If $f \colon \Omega \rightarrow \mathcal{X}$ is Bochner integrable then
+$$L\left( \int_{\Omega} f(\omega) \dd{\mu} \right) = \int_{\Omega} L(f(\omega)) \dd{\mu}.$$
+\end{corollary}
+\begin{corollary}\label{all:bochner-int-imply-almost-everywhere-eq} Let $f,g\colon \Omega \to \mathcal{X}$ be two Bochner integrable functions such that
+$$\int_{A} f \dd{\mu} = \int_{A} g \dd{\mu} \quad (A \in \mathcal{A}).$$
+Then $f(\omega) = g(\omega)$ for $\mu$-almost every $\omega \in \Omega$.
+\end{corollary}
+\begin{proof}
+Since $f$ and $g$ are almost everywhere separable valued by Theorem \ref{all:pettis-m-theorem}, we can recall the proof of Lemma \ref{all:gyengen-merheto-szaparalhato-lemma}. It follows that there exists a sequence $(x^{*}_n)_{n \in \mathbb{N}}$ of continuous functionals such that
+$$\|f(\omega) - g(\omega)\| = \sup\limits_{n \in \mathbb{N}} |x^{*}_n(f(\omega)) - x^{*}_n(g(\omega))|$$
+for $\mu$-almost every $\omega \in \Omega$.
+
+Now, we use Corollary \ref{all:hille-for-continuos-lin-functionals} for the Bochner integrable functions $f$ and $g$. It follows that for all $n \in \mathbb{N}$, we have
+$$\int_{A} x^*_n(f(\omega)) \dd{\mu} = \int_{A} x^*_n(g(\omega)) \dd{\mu} \quad (A \in \mathcal{A}).$$
+The similar proposition for Lebesgue integrals implies that $x_n^*(f(\omega))= x_n^*(g(\omega))$ for all $\omega \in \Omega \setminus B_n$ where $B_n$ is a set of measure zero. 
+
+Let us consider the set $B:= \bigcup_{n \in \mathbb{N}} B_n$. It is obvious that $\mu(B)= 0$ and for all $n \in \mathbb{N}$ and $\omega \in \Omega \setminus B$, we have
+$$|x^{*}_n(f(\omega)) - x^{*}_n(g(\omega))| = 0,$$
+that is,
+$$\|f(\omega) - g(\omega)\| = 0 \quad (\omega \in \Omega \setminus B),$$
+hence $f(\omega)=g(\omega)$ $\mu$-almost everywhere.
+\end{proof}
+\begin{note}[Bochner space]\label{no:bochner-space}\normalfont It is clear from the construction that if $f$ and $g$ are Bochner integrable functions and $c \in \mathbb{K}$ then so are $f + c \cdot g$, that is, the Bochner integrable functions form a vector space.
+
+This vector space can be endowed with a norm which we will call Bochner norm. This norm comes naturally in a view of $L^p$ spaces. Let $L^p(\mathcal{X}; \Omega, \mathcal{A}, \mu)$ $(1 \leqslant p \leqslant \infty)$ denote the normed space of equivalence classes of Bochner integrable $f\colon \Omega \to \mathcal{X}$ functions which agree almost everywhere (in the light of Corollary \ref{all:bochner-int-imply-almost-everywhere-eq}, this definition remains valid in this context too) such that $ \| f \|_{L^p} < \infty$ where
+\begin{displaymath}
+ \| f \|_{L^p} := \left\{
+    \begin{array}{ll}
+      \left(\int_{\Omega} \| f(\omega) \|^p  \dd{\mu} \right)^{\frac{1}{p}}, &  1 \leqslant p < \infty \\
+      \mathrm{ess}\sup_{\Omega} \|f(\omega)\| = \inf \lbrace C \geqslant 0 : \|f(\omega)\| \leqslant C \text{ $\mu$-a.e.} \rbrace, &  p = \infty.
+    \end{array}
+  \right.
+\end{displaymath}
+We note without proof that the space $L^p(\mathcal{X}; \Omega, \mathcal{A}, \mu)$ is a Banach space $(1 \leqslant p \leqslant \infty)$. Moreover, if $\mathcal{H}$ is a Hilbert space then so is $L^2(\mathcal{H}; \Omega, \mathcal{A}, \mu)$ with the inner product 
+$$
+\langle f, g \rangle_{L^2} := \int_{\Omega} \langle f(\omega), g(\omega) \rangle_{\mathcal{H}} \dd{\mu}.
+$$
+\end{note}
+\subsection{The Pettis integral}\label{subsec:pettis-integral} In this part, we introduce a new integration concept for Banach spaces, namely the Pettis integral. This new integral is weaker than the Bochner integral in the sense that every Bochner integrable function is Pettis integrable and the values of the integrals agree.  The term ''weak'' is commonly used in conjunction with Pettis integrals referring the underlying topology where this integration is built. That is why the Pettis integral is often mentioned as ''weak integral'' while the Bochner integral is called ''strong integral''.
+
+A weakly measurable function $f\colon\Omega \to \mathcal{X}$ is said to be \textbf{scalarly integrable} if for any $x^* \in \mathcal{X}^*$ the scalar valued function $\omega \mapsto x^*(f(\omega))$ is in $L^1(\Omega,\mathcal{A}, \mu)$. A scalarly integrable function $f\colon\Omega\to \mathcal{X}$ is \textbf{Pettis integrable} if there exists a vector $x \in \mathcal{X}$ such that
+$$
+x^*(x) = \int_{\Omega} x^*(f(\omega)) \dd{\mu}
+$$
+for every functional $x^* \in \mathcal{X}^*$. Then the \textbf{value of the Pettis integral} is defined to be $x$.
+
+Before we present the Pettis theory, we consider an integration concept for which scalar integrability is a sufficient condition.
+\begin{lem}[Dunford] \label{lem:dunford} Assume that $f$ is scalarly integrable. Then there exists an element $x^{**} \in \mathcal{X}^{**}$ satisfying
+$$
+x^{**}(x^*) = \int_{\Omega} x^*(f(\omega)) \dd{\mu}
+$$
+for all $x^* \in \mathcal{X}^*$.
+\end{lem}
+The functional $x^{**}$ in the second dual space $\mathcal{X}^{**}$ is called the \textbf{Dunford integral} of $f$.
+\begin{proof} Observe that the operator $T\colon \mathcal{X}^* \to L^1(\Omega,\mathcal{A}, \mu)$ given by $T(x^*)(\omega):=x^*(f(\omega))$ is closed.\ignore{gondold meg} Then the Closed graph theorem (\ref{theo:closed-graph}) states that $T$ is continuous. Therefore
+$$
+\left| \int_{\Omega} T(x^*)(\omega) \dd{\mu} \right| = \left| \int_{\Omega} x^*(f(\omega)) \dd{\mu} \right| \leqslant \int_{\Omega} |x^*(f(\omega))| \dd{\mu} = \| T(x^*) \|_{L^1} \leqslant \| T \|_{\mathrm{op}} \| x^* \|_{\mathrm{op}},
+$$
+that is, the map $x^{**}(x^*) := \int_{\Omega} x^*(f(\omega)) \dd{\mu}$ is bounded, hence $x^{**} \in \mathcal{X}^{**}$.
+\end{proof}
+\begin{state} The Pettis integral is well defined.
+\end{state}
+\begin{proof} Assume that $x_1 \in \mathcal{X}$ and $x_2 \in \mathcal{X}$ both satisfy the requirements of the Pettis integrability. Then
+$$
+x^*(x_1) - x^*(x_2) = x^*(x_1-x_2) = 0
+$$
+holds for all functionals $x^* \in \mathcal{X}^*$ thus $x_1 - x_2$ must be $0$.
+\end{proof}
+We can take advantage of the Dunford integral and give a sufficient condition for Pettis integrability in spaces which admit an isometric isomorphism $J \colon \mathcal{X} \to \mathcal{X}^{**}$ through the \textbf{evaluation map} $J(x)(x^*):=x^*(x)$ $(x \in \mathcal{X}, x^{*} \in \mathcal{X}^*)$. Such spaces are called \textbf{reflexive}.
+\begin{lem} Let $\mathcal{X}$ be a reflexive Banach space. Then a scalarly integrable function is Pettis integrable.
+\end{lem}
+\begin{proof} Since $\mathcal{X}$ is reflexive, the map $J \colon \mathcal{X} \to \mathcal{X}^{**}$ defined by the evaluation map $J(x)(x^*) := x^*(x)$ $(x^* \in \mathcal{X}^*)$ is an isomorphism. Let $x^{**}$ be the Dunford integral of $f$ (Lemma \ref{lem:dunford}) then $J^{-1}(x^{**})=:x$ will be the Pettis integral of $f$ since $x^{**}(x^*)=x^*(x)$ for all $x^* \in \mathcal{X}^*$.
+\end{proof}
+\begin{state}\label{all:bochner-integrability-implies-pettis} If $f\colon\Omega \to \mathcal{X}$ is Bochner integrable then it is Pettis integrable.
+\end{state}
+\begin{proof} Let $x$ be the Bochner integral of $f$, that is, $x := \int_{\Omega} f \dd{\mu}$. By Corollary \ref{all:hille-for-continuos-lin-functionals}, we have $x^*(x) = \int_{\Omega} x^*(f(\omega)) \dd{\mu}$ for all $x^* \in \mathcal{X}^*$.
+\end{proof}
+If $f$ is some integrable function we can define its \textbf{indefinite integral} by
+$$
+\nu_{f}(A) := \int_{A} f \dd{\mu} \quad (A \in \mathcal{A}).
+$$
+Another interpretation of Proposition \ref{all:integrate-on-union} and Proposition \ref{all:nullmerteku-integralas} would be the following: if $f$ is Bochner integrable then $\nu_f$ is a countably additive set function and $\nu_f(\varnothing) = 0$.  In what follows, we investigate whether the Pettis integral inherits this good property. 
+
+It is clear that if $f$ is a Pettis integrable function with Pettis integral $x$ and $A \in \mathcal{A}$ is a set of measure zero then $\int_{A} f \dd{\mu} = 0$ since the Lebesgue integral $x^*(x) = \int_{A} x^*(f(\omega)) \dd{\mu} = 0$ for all $x^* \in \mathcal{X}^{*}$ implies that $x = 0$. 
+
+Fortunately, Proposition \ref{all:integrate-on-union} remains true as well.
+\begin{theo}[Pettis]\label{all:indefinite-pettis-integral-countably-additive} Let $f\colon \Omega \rightarrow \mathcal{X}$ be a Pettis integrable function and $\mu$ a $\sigma$-finite measure. Let $(A_n)_{n \in \mathbb{N}}$ be a sequence of disjoint measurable sets and $A := \bigcup\limits^{\infty}_{n=1} A_n$, then
+$$
+\int_{A} f \dd{\mu} = \sum^{\infty}_{n=1} \int_{A_n} f \dd{\mu}.
+$$
+\end{theo}
+\begin{proof} Since the sets $A_n$ $(n \in \mathbb{N})$ are disjoint and measurable then for all $x^* \in \mathcal{X}^*$, we have
+$$
+x^*\left(\int_{\bigcup^{\infty}_{n=1} A_n} f \dd{\mu} \right) = \int_{\bigcup^{\infty}_{n=1} A_n} x^*(f(\omega)) \dd{\mu}
+$$
+where the right hand side is a Bochner integral. On account of Proposition \ref{all:integrate-on-union}, we have
+$$
+\int_{\bigcup^{\infty}_{n=1} A_n} x^*(f(\omega)) \dd{\mu} = \sum^{\infty}_{n=1} \int_{A_n} x^*(f(\omega)) \dd{\mu},
+$$
+and by Corollary \ref{all:hille-for-continuos-lin-functionals}, we arrive at
+$$
+\sum^{\infty}_{n=1} \int_{A_n} x^*(f(\omega)) \dd{\mu} = \sum^{\infty}_{n=1} x^*\left(\int_{A_n} f(\omega) \dd{\mu} \right).
+$$
+From this it may be concluded that the indefinite Pettis integral is \textbf{weakly countably additive}.
+
+However, applying the Orlicz\---Pettis theorem (\ref{all:orlicz-pettis-theorem}) we get that $\sum\limits^{\infty}_{n=1} x^*\left(\int_{A_n} f(\omega) \dd{\mu} \right)$ is unconditionally convergent and therefore convergent, that is,
+$$
+x^*\left(\int_{\bigcup^{\infty}_{n=1} A_n} f \dd{\mu} \right) = \sum^{\infty}_{n=1} x^*\left(\int_{A_n} f \dd{\mu} \right) = x^*\left(\sum^{\infty}_{n=1} \int_{A_n} f \dd{\mu}\right)
+$$
+for all linear functionals $x^* \in \mathcal{X}^*$, therefore
+$$
+\int_{A} f \dd{\mu} = \int_{\bigcup^{\infty}_{n=1} A_n} f \dd{\mu} = \sum^{\infty}_{n=1} \int_{A_n} f \dd{\mu}
+$$
+as claimed.
+\end{proof}
+We are about to prove the Pettis integral counterpart of Theorem \ref{all:integrable-absolutely-convergent}.
+\begin{theo}\label{all:pettis-integrable-unconditionally-convergent}Let $f\colon \Omega \to \mathcal{X}$ be a measurable function with the decomposition $f(\omega)=g(\omega)+h(\omega)$ introduced in Corollary \ref{all:measurabledecomposition} where $h(\omega) := \sum^{\infty}_{i=1} \chi_{A_i}(\omega) x_i$. Then $f$ is Pettis integrable if and only if $\sum^{\infty}_{i=1}\mu(A_i) x_i$ is unconditionally convergent. Moreover, in case of unconditional convergence, we have $\int_{\Omega} f \dd{\mu} = \int_{\Omega} g \dd{\mu} + \sum^{\infty}_{i=1}\mu(A_i) x_i$.
+\end{theo}
+\begin{proof} \emph{Necessity.} Assume that $f$ Pettis integrable then $h$ is also Pettis integrable. The indefinite Pettis integral of $h$ is countably additive (Theorem \ref{all:indefinite-pettis-integral-countably-additive}), which leads to
+$$\int_{\Omega} h \dd{\mu} = \sum^{\infty}_{i=1} \int_{A_i} h \dd{\mu} = \sum^{\infty}_{i = 1} \mu(A_i) x_i.$$
+The unconditional convergence is just a consequence of the fact that for any bijection $\sigma \colon \mathbb{N} \to \mathbb{N}$ the function 
+$h_{\sigma} = \sum^{\infty}_{i = 1} \chi_{A_{\sigma(i)}} x_{\sigma(i)}$ equals to $h$ and thus
+$$\sum^{\infty}_{i = 1} \mu(A_i) x_i = \sum^{\infty}_{i = 1} \mu(A_{\sigma(i)}) x_{\sigma(i)}$$
+also holds.
+
+\emph{Sufficiency.} For the converse it is enough to prove that $h$ is Pettis integrable provided that $\sum^{\infty}_{i=1}\mu(A_i) x_i$ is unconditionally convergent.
+
+If $x^* \in \mathcal{X}^*$ then the unconditional convergence implies that $\sum^{\infty}_{i=1} \mu(A_i) x^*(x_i)$ is unconditionally convergent in $\mathbb{R}$, and in this space the unconditional and absolute convergence are equivalent. Thus we get
+$$
+\int_{\Omega} | x^*(h(\omega)) | \dd{\mu} = \sum^{\infty}_{i=1} \mu(A_i) | x^*(x_i) | < \infty
+$$
+which means that $h$ is scalarly integrable. In addition, for all linear functionals $x^* \in \mathcal{X}^*$, we have
+$$
+\int_{\Omega} x^*(h(\omega)) \dd{\mu} = \sum^{\infty}_{i = 1} \mu(A_i) x^*(x_i) = x^*\left(\sum^{\infty}_{i = 1} \mu(A_i) x_i \right).
+$$
+This gives the Pettis integral of $h$:
+$$
+\int_{\Omega} h \dd{\mu} = \sum^{\infty}_{i = 1} \mu(A_i) x_i.
+$$
+Finally, $f(\omega) = g(\omega) + h(\omega)$ where $g$ is Bochner integrable (since it is bounded) and according to Proposition \ref{all:bochner-integrability-implies-pettis} it is a Pettis integrable function so $f$ is Pettis integrable and
+$$
+\int_{\Omega} f \dd{\mu} = \int_{\Omega} g + h \dd{\mu} = \int_{\Omega} g \dd{\mu} + \int_{\Omega} h \dd{\mu} = \int_{\Omega} g \dd{\mu} + \sum^{\infty}_{i = 1} \mu(A_i) x_i.
+$$
+The proof is complete.
+\end{proof}
+In what follows, we present two limit theorems concerning Pettis integrals. The first is formulated for weakly sequentially complete spaces (Defintion \ref{def:weakly-seq-complete}). The second one is the generalization of the Lebesgue Dominated Convergence Theorem.
+\begin{state} Let $\mathcal{X}$ be a weakly sequentially complete Banach space. Let $f\colon\Omega \to \mathcal{X}$ be a function and $(f_n)_{n \in \mathbb{N}} \colon \Omega \to \mathcal{X}$ a sequence of simple functions such that $f_n \to f$ weakly almost everywhere and
+$$
+\int_{\Omega} |x^*(f_n(\omega)) - x^*(f_m(\omega))| \dd{\mu} \to 0 \quad \text{ as } n,m \to \infty,
+$$
+for any $x^* \in \mathcal{X}^*$. Then $f$ is Pettis integrable and
+$$
+\lim^{w}_{n \to \infty} \int_{\Omega} f_n \dd{\mu} = \int_{\Omega} f \dd{\mu}.
+$$
+\end{state}
+\begin{proof} It is obvious that any simple function $f_n$ $(n \in \mathbb{N})$ is scalarly integrable, and hence the assumption
+$$
+\int_{\Omega} |x^*(f_n(\omega)) - x^*(f_m(\omega))| \dd{\mu} \to 0 \quad \text{ as } n,m \to \infty
+$$
+means that the sequence $(x^*(f_n))_{n \in \mathbb{N}}$ is Cauchy in $L^1(\Omega, \mathcal{A}, \mu)$, which is complete, thus the weak limit $x^*(f)$ is also in $L^1(\Omega, \mathcal{A}, \mu)$, that is, $f$ is scalarly integrable.
+In other words
+\begin{equation}\label{all:l1benkonvergal}
+\lim_{n \to \infty} \int_{\Omega} x^*(f_n(\omega)) \dd{\mu} = \int_{\Omega} x^*(f(\omega)) \dd{\mu}
+\end{equation}
+for all $x^* \in \mathcal{X}^*$. However, we know that for simple functions $x^*(\int_{\Omega} f_n \dd{\mu}) = \int_{\Omega} x^*(f_n(\omega)) \dd{\mu}$ holds $(n \in \mathbb{N})$. A glance at (\ref{all:l1benkonvergal}) shows that $x^*(\int_{\Omega} f_n \dd{\mu})$ converges and that it is a Cauchy sequence for all $x^* \in \mathcal{X}^*$.
+
+We concluded that $\int_{\Omega} f_n \dd{\mu}$ is a weak Cauchy sequence. Since $\mathcal{X}$ is weakly sequentially complete it follows that $\int_{\Omega} f_n \dd{\mu}$ has a weak limit in $\mathcal{X}$, that is,
+$$
+\lim^{w}_{n \to \infty} \int_{\Omega} f_n \dd{\mu} =: x \in \mathcal{X}.
+$$
+We proved that, for any $x^* \in \mathcal{X}^*$ we have
+$$
+x^*(x) = \lim_{n \to \infty} x^*\left(\int_{\Omega} f_n \dd{\mu} \right) =  \lim_{n \to \infty} \int_{\Omega} x^*(f_n(\omega)) \dd{\mu} = \int_{\Omega} x^*(f(\omega)) \dd{\mu},
+$$
+that is, $x$ is the Pettis integral of $f$.
+\end{proof}
+\begin{note}\normalfont Every reflexive Banach space is weakly sequentially complete. \cite{megginson} \textit{2.8.11. Corollary}.
+\end{note}
+\begin{theo}[Dominated Convergence Theorem] Let $f_n \colon \Omega \rightarrow \mathcal{X}$ be a sequence of Pettis integrable functions. Suppose that $f_n(\omega) \rightarrow f(\omega)$ weakly for $\mu$-almost every $\omega \in \Omega$, and that there exists a Lebesgue integrable function $g \colon \Omega \rightarrow \mathbb{R}$ such that $|x^*(f_n(\omega))| \leqslant g(\omega)$ for $\mu$-almost every $\omega \in \Omega$ $(n \in \mathbb{N})$ and for all $x^* \in \mathcal{X}^*$. Then $f$ is Pettis integrable and 
+$$\lim^{w}_{n \to \infty} \int_{\Omega} f_n \dd{\mu} = \int_{\Omega} f \dd{\mu}.$$ \qedb
+\end{theo}
+\begin{state}\label{prop:pettis-integral-almost-everywhere-agrees} Let $f,g\colon \Omega \to \mathcal{X}$ be two Pettis integrable and measurable functions such that 
+$$\int_{A} f \dd{\mu} = \int_{A} g \dd{\mu} \quad (A \in \mathcal{A}).$$
+Then $f(\omega) = g(\omega)$ $\mu$-almost every $\omega \in \Omega$.
+\end{state}
+\begin{proof} The same argument applies here as in Corollary \ref{all:bochner-int-imply-almost-everywhere-eq}.
+\end{proof}
+\begin{note}[Pettis space]\normalfont We recall Note \ref{no:bochner-space}, the Banach space of Bochner integrable functions. Similarly, the Pettis integrable functions form a vector space and we can define a norm on it. Let $\mathcal{P}(\mathcal{X}; \Omega, \mathcal{A}, \mu)$ denote the normed space of equivalence classes of Pettis integrable $f\colon \Omega \to \mathcal{X}$ functions which agree almost everywhere (see Proposition \ref{prop:pettis-integral-almost-everywhere-agrees}) such that $\|f \|_{\mathcal{P}(\mathcal{X})} < \infty$ where
+$$
+\|f\|_{\mathcal{P}(\mathcal{X})} := \sup_{x^* \in \mathcal{X}^*} \int_{\Omega} | x^*(f(\omega)) | \dd{\mu}.
+$$
+It was proved that if $\mu$ is the Lebesgue measure in $[0,1]$ then for any infinite dimensional Banach space $\mathcal{X}$, the space $\mathcal{P}(\mathcal{X}; \Omega, \mathcal{A}, \mu)$ is noncomplete \cite{janicka-kalton1977}.
+\end{note}
+\subsection{The connection between Pettis and Bochner integrable functions}
+We mentioned that Theorem \ref{all:integrable-absolutely-convergent} and \ref{all:pettis-integrable-unconditionally-convergent} were useful since we could characterize the integrability of a strongly measurable function by the help of its countably valued part. Owing to Appendix \ref{sec:sequences-and-series} we know the relationship between unconditionally and absolutely convergent series which yields some interesting fact about Bochner and Pettis integrals.
+\begin{corollary} If $f\colon \Omega \to \mathcal{X}$ is Bochner integrable then it is Pettis integrable.
+\end{corollary}
+\begin{proof} We already proved this in Proposition \ref{all:bochner-integrability-implies-pettis}. However, it also follows from the fact that absolute convergence implies unconditional convergence.
+\end{proof}
+\begin{corollary}\label{cor:pettis-but-not-bochner-integrable} Let $\mathcal{X}$ be an infinite dimensional Banach space. Then there exists a measurable function which is Pettis but not Bochner integrable.
+\end{corollary} 
+\begin{proof} By the Dvoretzky\---Rogers theorem (\ref{all:dvoretzky-rogers-theorem}) we know that there exists an unconditionally convergent series $\sum^{\infty}_{k=1} x_k$ $(x_k \in \mathcal{X})$ that is not absolutely convergent. Let $A_i$ $(i \in \mathbb{N})$ be a disjoint sequence of measurable sets with $0 < \mu(A_i) < \infty$. Then the countably valued function $h(\omega) := \sum^{\infty}_{k=1} \frac{x_k}{\mu(A_i)} \chi_{A_i}(\omega)$ is Pettis but not Bochner integrable (Theorem \ref{all:integrable-absolutely-convergent} and \ref{all:pettis-integrable-unconditionally-convergent}).
+\end{proof}
+\begin{corollary}  The sets of Pettis and Bochner integrable measurable functions coincide if and only if $\mathcal{X}$ is finite dimensional. 
+\end{corollary}
+\begin{proof} It immediately follows from Corollary \ref{cor:pettis-but-not-bochner-integrable} that if $\mathcal{X}$ is infinite dimensional then then two sets cannot be the same. However, if $X$ is finite dimensional then the equivalence of unconditional and absolute convergence together with Theorem \ref{all:integrable-absolutely-convergent} and Theorem \ref{all:pettis-integrable-unconditionally-convergent} complete the proof.
+\end{proof}
+\begin{corollary}\label{all:weakly-absolutely-convergent-pettis-integrable} Assume that the Banach space $\mathcal{X}$ does not contain subspaces isomorphic to $c_0$. Then in Theorem \ref{all:pettis-integrable-unconditionally-convergent} it is enough to assume that $\sum^{\infty}_{i=1}\mu(A_i) x_i$ is weakly absolutely convergent.
+\end{corollary}
+\begin{proof} The Bessaga\---Pełczyński theorem (\ref{all:bessaga-pelczynski-theorem}) guarantees that every weakly absolutely convergent series is unconditionally convergent.
+\end{proof}
+\begin{theo}[Diestel\---Dimitrov] Let $\mathcal{X}$ be a Banach space that does not contain subspaces isomorphic to $c_0$. Let $f\colon \Omega \to \mathcal{X}$ be a measurable and scalarly integrable function. Then $f$ is Pettis integrable.
+\end{theo}
+\begin{proof} The function $f$ is measurable so we can consider the form $f = g + \sum^{\infty}_{i=1} \chi_{A_i} x_i$ (Corollary \ref{all:measurabledecomposition}) where $g$ is Bochner integrable. By the scalar integrability, we obtain that for all linear functionals $x^* \in \mathcal{X}^*$:
+$$
+|x^*(f-g)| = \sum^{\infty}_{i=1} | x^*(x_i) | \chi_{A_i}
+$$
+therefore
+$$
+\sum^{\infty}_{i=1} | x^*(x_i) | \mu(A_i) = \int_{\Omega} |x^*(f-g)| \dd{\mu} < \infty.
+$$
+proves the weak absolute convergence. Now, Corollary \ref{all:weakly-absolutely-convergent-pettis-integrable} finishes the proof.
+\end{proof}
+\paragraph*{References} The proof of Theorem \ref{all:bochner-theorem} is identical to the one that can be found in \cite{denkowski-migorski-papageorgiou} \textit{Theorem 3.10.8}. Subsection \ref{all:bochner-prop} mainly follows the structure of \cite{diestel-uhl} \textit{II. Integration: Theorem 3 and Theorem 4 (i), (ii), (iii)}. Hille theorem (\ref{all:hille-theorem}) is from \cite{neerven} \textit{Theorem 1.19}, a different proof can be found in \cite{diestel-uhl} \textit{Theorem 6} but it uses Corollary \ref{all:merheto-fuggveny-egy-hatarerteke-megsz-erteku-fuggvenyeknek} so it requires a $\sigma$-finite measure space. Subsection \ref{subsec:pettis-integral} is based on \cite{diestel-uhl} \textit{II. Integration: 3. The Pettis integral}, \cite{schwabik} \textit{2.2 Pettis integral}, \cite{pugachev-sinitsyn} \textit{5.2.4 Passage to the Limit under a Weak Integral Sign} and \cite{musial1991} \textit{5. Integrability of strongly measurable functions, 8. Limit theorems}.
+\section{Vector measures}\label{sec:vectormeasures}
+A function $F\colon \mathcal{A} \to \mathcal{X}$ is called a \textbf{finitely additive vector measure} if whenever $A_1$ and $A_2$ are disjoint members of $\mathcal{A}$ then $F(A_1 \cup A_2) = F(A_1) + F(A_2)$. If $F$ is countably additive, that is, $F\left( \bigcup^{\infty}_{n=1} A_n \right) = \sum^{\infty}_{n=1}F(E_n)$ for all disjoint sequences $(A_n)_{n \in \mathbb{N}}$ in $\mathcal{A}$, then we say that $F$ is a \textbf{vector measure}.
+
+
+The well known limiting properties of scalar measures are satisfied, namely if $(A_n)$ is an increasing sequence in $\mathcal{A}$ such that $\bigcup_{n \in \mathbb{N}} A_n =: A$ then $\lim\limits_{n \to \infty} F(A_n) = F(A)$. A similar proposition can be formulated for decreasing sequences.
+\begin{example}[a finitely additive vector measure which is not countably additive]\label{all:finitely-additive-but-not-countably-additive-vecmeasure} \normalfont Consider the measure space $([0,1], \mathcal{A}, \lambda)$ where $\lambda$ is the Lebesgue measure. Let $T\colon L^{\infty}[0,1] \to \mathcal{X}$ be a continuous linear operator. For a measurable set $A \in \mathcal{A}$ let $F(A) := T(\chi_A)$, then $F$ is a finitely additive vector measure since $A_1, A_2 \in \mathcal{A}$ $(A_1 \cap A_2 = \varnothing)$ and the linearity of $T$ implies that $F(A_1 \cup A_2) = T(\chi_{(A_1 \cup A_2)}) = T(\chi_{A_1} + \chi_{A_2}) = T(\chi_{A_1}) + T(\chi_{A_2})$ which proves the finite additivity.
+
+The failure of $F$ to be countably additive in general can be demonstrated with the following choices: let $\mathcal{X} := (\mathbb{R}, | \cdot |)$ and consider the subspace $C[0,1] \subset L^\infty[0,1]$. The point evaluation functional $\delta_{1/2}(f) := f(1/2)$ is continuous on $C[0,1]$ with an operator norm of $1$, and therefore by the Hahn\---Banach theorem continuously extends to $L^\infty[0,1]$ and its norm does not change. Let us define the operator $T$ by this extension.
+
+To obtain a contradiction assume that $F$ is countably additive. Let
+$$A_n := [0, (n-1)/2n] \cup [(n+1)/2n, 1] \in \mathcal{A},$$
+we can see that $A_n \subset A_{n+1}$ $(n \in \mathbb{N})$ and $\bigcup\limits_{n \in \mathbb{N}} A_n = [0,1] \setminus \lbrace 1/2 \rbrace$ imply that
+$$F([0,1] \setminus \lbrace 1/2 \rbrace) = \lim_{n \to \infty} F(A_n).$$
+Since $\chi_{([0,1] \setminus \lbrace 1/2 \rbrace)} = \chi_{([0,1])}$ $\lambda$-almost everywhere and $\chi_{([0,1])} \in C[0,1]$, we have
+$$F([0,1] \setminus \lbrace 1/2 \rbrace) = T(\chi_{([0,1] \setminus \lbrace 1/2 \rbrace)}) = T(\chi_{[0,1]}) = \chi_{[0,1]}(1/2)=1.$$
+
+Let $f$ be a continuous function such that $f(1/2)=0$ and $\mathrm{ess} \sup_{[0,1]} | \chi_{A_n}(x) - f(x) | = 1/2$ ($f(x) = x - 1/2$ is an appropriate choice). Since $T(f) = 0$ and $\|T \|_{\mathrm{op}} = 1$, we have 
+$$|F(A_n)| = |T(\chi_{A_n})| = |T(\chi_{A_n}) - T(f)| \leqslant \mathrm{ess} \sup_{[0,1]} | \chi_{A_n}(x) - f(x) | = 1/2,$$
+
+which leads to a contradiction with $\lim\limits_{n \to \infty} F(A_n) = 1 \leqslant 1/2.$
+\end{example}
+
+\begin{example}[a vector measure generated by a function]\label{all:measure-generated-by-a-function} \normalfont Let $(\Omega, \mathcal{A}, \mu)$ be a $\sigma$-finite measure space and $f \colon \Omega \to \mathcal{X}$ a Bochner (Pettis) integrable function, then the indefinite
+$$\nu_f(A) := \int_{A} f \dd{\mu} \quad (A \in \mathcal{A})$$
+Bochner (Pettis) integral of $f$ is a countably additive vector measure. These facts follow from Theorem \ref{all:indefinite-pettis-integral-countably-additive} and Proposition \ref{all:integrate-on-union}, respectively.
+\end{example}
+
+\begin{example}[a vector measure]\label{ex:vector-measure2}\normalfont Consider the construction in Example \ref{all:finitely-additive-but-not-countably-additive-vecmeasure} with the change of the domain of $T$ to $L^1([0,1])$.
+
+It is obvious that
+$$\| F(A) \| \leqslant \|T\|_{\mathrm{op}}\| \chi_{A} \|_{L^1} \leqslant \lambda(A) \|T\|_{\mathrm{op}}.$$
+It follows that if $(A_n)_{n \in \mathbb{N}}$ is a disjoint sequence of Lebesgue measurable sets then
+$$\lim_{m \to \infty} \left \| F \left(\bigcup^{\infty}_{n=1}A_n \right) - \sum^{m}_{n=1}F(A_n) \right \| = \lim_{m \to \infty} \left \| F \left(\bigcup^{\infty}_{n=m+1}A_n \right)\right \| \leqslant \lim_{m \to \infty} \lambda\left(\bigcup^{\infty}_{n=m+1}A_n \right) \| T \|_{\mathrm{op}}.$$
+However, $\lim\limits_{m \to \infty} \lambda\left(\bigcup^{\infty}_{n=m+1}A_n \right) = 0$ thus $\sum^{m}_{n=1}F(A_n) \to F \left(\bigcup^{\infty}_{n=1}A_n \right)$ as $m \to \infty$.
+\end{example}
+\subsection{Variation of vector measures}
+Let $F \colon \mathcal{A} \to \mathcal{X}$ be a finitely additive or a countably additive vector measure. The \textbf{variation} of $F$ is a function $|F| \colon \mathcal{A} \to [0, \infty]$ defined by
+$$|F|(A) := \sup_{\pi} \left\lbrace \sum^{m}_{j=1} \| F(A_j) \| : \bigcup^{m}_{j=1} A_j = A \text{ and } \pi := \lbrace A_1, A_2, \ldots, A_m \rbrace \text{ are disjoint sets} \right\rbrace.$$
+The $\pi$ in the supremum is called a \textbf{partition} of $A$.
+
+The function $\|F\| \colon \mathcal{A} \to [0, \infty]$ given by
+$$\|F\|(A) := \sup_{x^* \in \mathcal{X}^*} \left \lbrace |x^* \circ F|(A) : \| x^* \|_{\mathrm{op}} \leqslant 1 \right \rbrace$$
+is called the \textbf{semivariation} of $F$.
+
+We say that $F$ is a \textbf{measure of bounded variation} or \textbf{semivariation} if $|F|(\Omega) < \infty$ or $\|F\|(\Omega) < \infty$.
+
+
+It immediately follows that $\|F\|(A) \leqslant |F|(A)$ since $A$ is a partition of $A$ and $|x^*(F(A))| \leqslant \| F(A) \|$ when $\| x^* \|_{\mathrm{op}} \leqslant 1.$ Summarizing, we have 
+\begin{equation}\label{ineq:vector-measures-ineq}
+\|F\|(A) \leqslant \| F(A) \| \leqslant |F|(A).
+\end{equation}
+
+The vector measures are monotone set functions, that is, whenever $A, B \in \mathcal{A}$ satisfy $A \subset B$, we have $|F|(A) \leqslant |F|(B)$.
+
+\begin{state}\label{prop:variation-measure}
+Let $F$ be a vector measure, then its variation $|F|$ is a $[0, \infty]$-valued measure.
+\end{state}
+\begin{proof} The nonnegativity of $|F|$ and $|F|(\varnothing) = 0$ are obvious. 
+
+We check the finite additivity of $|F|$. Let us take any disjoint measurable sets $A$ and $B$. Consider the partitions $\pi_A$ and $\pi_B$ where 
+$$
+|F|(A) - \sum_{C \in \pi_A}\|F(C)\| < \frac{\varepsilon}{2}\text{ and } |F|(B) - \sum_{C \in \pi_B}\|F(C)\| < \frac{\varepsilon}{2}
+$$
+are attained, respectively for a given $\varepsilon > 0$. Then, of course, the partition $\pi := \pi_A \cup \pi_B$ appears in the supremum of $|F|(A \cup B)$ hence 
+$$
+|F|(A \cup B) \geqslant \sum_{C \in \pi_A}\|F(C)\| + \sum_{C \in \pi_B}\|F(C)\| > |F|(A) + |F|(B) - \varepsilon.
+$$
+Letting $\varepsilon \to 0$ proves that
+$$
+|F|(A \cup B) \geqslant |F|(A) + |F|(B).
+$$
+For the reverse inequality consider the partition $\pi$ where 
+$$
+|F|(A \cup B) - \sum_{C \in \pi}\|F(C)\| < \varepsilon
+$$
+is attained. Then we can make a new partition of $A$ and $B$: 
+$$
+\pi_A := \pi ( = \lbrace C_1, C_2, \ldots,C_n \rbrace) \cap A := \lbrace C_1 \cap A, C_2 \cap A, \ldots, C_n \cap A \rbrace
+$$ 
+and $\pi_B := \pi \cap B$. Since
+\begin{align*}
+\|F(C_i \cap A) \| + \|F(C_i \cap B) \| \geqslant \| F(C_i \cap B) + F(C_i \cap A) \| &= \\
+\| F((C_i \cap B) \cup (C_i \cap A)) \| = \| F(C_i) \|
+\end{align*}
+$(i=1,2,\ldots,n)$, summing over $\pi$ we get that
+\begin{align*}
+|F|(A) + |F|(B) \geqslant \sum^{n}_{i=1} \left(\|F(C_i \cap A) \| + \|F(C_i \cap B) \| \right) \geqslant \\ \sum^{n}_{i=1} \| F(C_i) \| > |F|(A \cup B) - \varepsilon,
+\end{align*}
+which proves the reverse inequality.
+
+To prove the countable additivity, let $(E_n)_{n \in \mathbb{N}}$ be a sequence of disjoint measurable sets and $\pi$ a partition of $\bigcup^{\infty}_{n=1} E_n$. Then
+\begin{align*}
+\sum_{A \in \pi} \| F(A) \| = \sum_{A \in \pi} \left \| F \left (A \cap \bigcup^{\infty}_{n=1} E_n \right ) \right \| =
+\sum_{A \in \pi} \left \| \sum^{\infty}_{n=1} F(A \cap E_n) \right \| &\leqslant \\
+\sum_{A \in \pi} \sum^{\infty}_{n=1} \| F(A \cap E_n)  \| \leqslant
+\sum^{\infty}_{n=1} \sum_{A \in \pi} \| F(A \cap E_n)  \| \leqslant \sum^{\infty}_{n=1} |F|(E_n).
+\end{align*}
+This holds for any partition $\pi$ thus $|F|(\bigcup^{\infty}_{n=1} E_n) \leqslant \sum^{\infty}_{n=1} |F|(E_n)$.
+For the reverse inequality we use that $|F|$ is finitely additive and monotone, that is, 
+$$\sum^{n}_{k=1}|F|(E_k) = |F|\left(\bigcup^{n}_{k=1} E_k \right) \leqslant |F|\left(\bigcup^{\infty}_{k=1} E_k \right).$$
+Letting $n \to \infty$ we have $|F|(\bigcup^{\infty}_{n=1} E_n) \geqslant \sum^{\infty}_{n=1} |F|(E_n)$ and the proof is completed.
+\end{proof}
+\begin{note}\normalfont $F$ being of bounded variation here means that $|F|$ is a finite measure.
+\end{note}
+\begin{state}\label{prop:variation-norm-integral} Let $f\colon \Omega \to \mathcal{X}$ be a Bochner integrable function. Let us consider the vector measure $F$ generated by $f$. Then
+$$|F|(A) = \int_{A} \|f(\omega)\| \dd{\mu} \quad (A \in \mathcal{A}).$$
+\end{state}
+\begin{proof}
+Let $\pi$ be a partition of a measurable set $A$. Then
+$$\sum_{E \in \pi} \| F(E) \|  = \sum_{E \in \pi} \left \| \int_{E} f \dd{\mu} \right \| \leqslant \sum_{E \in \pi} \int_{E} \| f(\omega) \| \dd{\mu} = \int_{A} \| f(\omega) \| \dd{\mu},$$
+that is, $|F|(A) \leqslant \int_{A} \| f(\omega) \| \dd{\mu}.$
+
+We need to prove the reverse inequality. By the Bochner integrability of $f$ there exists a sequence of simple functions $(f_n)_{n \in \mathbb{N}}$ such
+that $\lim\limits_{n\to \infty}\int_{\Omega} \| f(\omega) - f_n(\omega) \| \dd{\mu} = 0.$
+Thus for any $\varepsilon > 0$ we can fix $n_0 \in \mathbb{N}$ such that
+$$\int_{\Omega} \|f(\omega) - f_{n_0}(\omega) \| \dd{\mu} < \varepsilon.$$
+We construct a partition $\pi'$ of $A$ satisfying
+\begin{equation} \label{eq:nice-partition}
+\sum_{E \in \pi'} \left \| \int_{E} f_{n_0} \dd{\mu} \right \| = \int_{A} \| f_{n_0}(\omega) \| \dd{\mu}.
+\end{equation}
+Let us consider the representation $\sum^{n}_{k=1} \chi_{B_k} y_k$ of $f_{n_0}$. Now, we define $\pi'$ with 
+$$\left \lbrace B_1 \cap A, B_2 \cap A, \ldots, B_n \cap A, A \setminus \bigcup^{n}_{k=1} (B_k \cap A) \right \rbrace,$$
+which is clearly a partition of $A$. It is evident that if $\omega \in A \setminus \bigcup^{n}_{k=1} (B_k \cap A)$ then $f_{n_0}(\omega) = 0$ and that
+$$\int_{B_k \cap A} \| f_{n_0}(\omega) \| \dd{\mu} = \left \| \int_{B_k \cap A} f_{n_0} \dd{\mu} \right \| = \mu(B_k \cap A) \| y_k\| \quad (k = 1,2,\ldots,n),$$
+which verifies (\ref{eq:nice-partition}).
+
+Now, take a partition $\rho$ such that
+\begin{equation}\label{ineq:partition-sup}
+|F|(A) - \sum_{C \in \rho}  \left \| \int_{C} f \dd{\mu} \right \| < \varepsilon.
+\end{equation}
+We would like to keep property (\ref{eq:nice-partition}) for this new partition. This can be achieved by decomposing each set in $\rho$ as follows: if $C_i \in \rho$ then
+
+$$\left \lbrace C_i \cap B_1 \cap A, \ldots, C_i \cap B_n \cap A , C_i  \cap \left(A \setminus \bigcup^{n}_{k=1} (B_k \cap A) \right) \right\rbrace$$
+satisfies what we wanted. Therefore we can replace each $C_i$ in $\rho$ with such a decomposition. Note that, $|F|(A)$ is a supremum thus after having finished with this replacement procedure we might get closer to $|F|(A)$ in the sense that (\ref{ineq:partition-sup}) still holds for some $0 < \varepsilon' \leqslant \varepsilon$.
+
+It follows that
+$$\sum_{C \in \rho} \left | \left \| \int_{C} f \dd{\mu} \right \| - \left \| \int_{C} f_{n_0} \dd{\mu} \right \| \right | \leqslant \int_{A} \|f(\omega) - f_{n_0}(\omega) \| \dd{\mu} < \varepsilon.$$
+Therefore
+\begin{equation*}
+\begin{split}
+\left | |F|(A) - \int_{A} \| f_{n_0}(\omega) \| \dd{\mu} \right | =& \left | |F|(A) - \sum_{C \in \rho}  \left \| \int_{C} f \dd{\mu} \right \| + \sum_{C \in \rho}  \left \| \int_{C} f \dd{\mu} \right \| - \sum_{C \in \rho} \left \| \int_{C} f_{n_0} \dd{\mu} \right \| \right |  \leqslant \\
+ &\left | |F|(A) - \sum_{C \in \rho}  \left \| \int_{C} f \dd{\mu} \right \| \right | + \left | \sum_{C \in \rho}  \left \| \int_{C} f \dd{\mu} \right \| - \sum_{C \in \rho} \left \| \int_{C} f_{n_0} \dd{\mu} \right \| \right | \leqslant \\
+&\left | |F|(A) - \sum_{C \in \rho}  \left \| \int_{C} f \dd{\mu} \right \| \right | +  \sum_{C \in \rho} \left | \left \| \int_{C} f \dd{\mu} \right \| - \left \| \int_{C} f_{n_0} \dd{\mu} \right \| \right |  < 2\varepsilon.
+\end{split}
+\end{equation*}
+Since $\varepsilon > 0$ was arbitrarily chosen, this proves that
+$$|F|(A) = \lim_{n \to \infty} \int_{A} \| f_{n}(\omega) \| \dd{\mu} = \int_{A} \| f(\omega) \| \dd{\mu}.$$
+\end{proof}
+
+One straightforward application of this theorem is that we can give a new proof of Corollary \ref{all:bochner-int-imply-almost-everywhere-eq}.
+
+\emph{New proof of Corollary \ref{all:bochner-int-imply-almost-everywhere-eq}}. Consider the vector measure $F$ generated by $f-g$. It follows that for all $A \in \mathcal{A}$ we have $F(A)=0$. Then 
+$$\int_{A} \| (f-g)(\omega) \| \dd{\mu} = 0 \quad (A \in \mathcal{A})$$
+implies that $\| (f - g)(\omega) \| = 0$ for $\mu$-almost every $\omega \in \Omega$ which can happen only if $f(\omega) = g(\omega)$ for $\mu$-almost every $\omega \in \Omega$. \qed
+
+\begin{note}\normalfont
+It easily follows from Proposition \ref{prop:variation-norm-integral} that a vector measure $F$ generated by a Bochner integrable function is of bounded variation. In fact, if $f$ is strongly measurable and Pettis integrable then $F$ is of bounded variation if and only if $f$ is Bochner integrable. Under the assumption of being Pettis integrable, Rybakov showed \cite{rybakov1968} that the generated measure is of $\sigma$-finite variation.
+\end{note}
+
+\begin{note}\normalfont
+Proposition \ref{prop:variation-norm-integral} can be stated for scalar measures since $(\mathbb{R}, |\cdot|)$ is a Banach space. This means that a classical scalar measure can be considered as a vector measure. Summarizing that, we can say that if $f \in L^1(\Omega, \mathcal{A}, \mu)$ and $\lambda(A) := \int_{A} f \dd{\mu}$ then
+$$|\lambda|(A) = \int_{A} |f(\omega)| \dd{\mu} \quad (A \in \mathcal{A}).$$
+\end{note}
+
+\subsection{Integration with respect to vector measures}\label{subsec:integration-with-respect-to-vector-measures}
+Le $F$ be a vector measure and $f \colon \Omega \to \mathbb{R}$ a real-valued $|F|$-simple function represented by $\alpha_1,\ldots,\alpha_n \in \mathbb{R}$ and disjoint, measurable sets $A_1,\ldots,A_n \in \mathcal{A}$.
+
+The \textbf{integral of $f$ with respect to the vector measure $F$} is defined by
+$$\int_{\Omega} f \dd{F} := \sum^{n}_{k=1} \alpha_k F(A_k).$$
+Since the $A_i$ are disjoint $(i = 1,2,\ldots,n)$ the equality $|f(\omega)| = \sum^{n}_{k=1} | \alpha_i | \chi_{A_i}(\omega)$ holds. Then
+$$\left \| \int_{\Omega} f \dd{F} \right \| \leqslant \sum^{n}_{k=1} |\alpha_k| \| F(A_k) \| \leqslant \sum^{n}_{k=1} |\alpha_k| |F|(A_k) = \int_{\Omega} |f(\omega)| \dd{|F|}.$$
+Notice that $|F|$ is a measure (Proposition \ref{prop:variation-measure}) so it follows that $\int_{\Omega} |f(\omega)| \dd{|F|} = \| f \|_1$ where $\| \cdot \|_1$ denotes the usual norm of the space $L^1(\Omega, \mathcal{A}, |F|)$.
+
+The set of the real valued $|F|$-simple functions is a dense subspace in $L^1(\Omega, \mathcal{A}, |F|)$ and we proved that the integral operator $f \mapsto \int_{\Omega} f \dd{|F|}$ is continuous on this subspace. Therefore, if $f\in L^1(\Omega, \mathcal{A}, |F|)$ and $(f_n)_{n \in \mathbb{N}}$ is a sequence of $|F|$-simple functions such that $\| f - f_n \|_1 \to 0$, then
+$$\int_{\Omega} f \dd{F} := \lim_{n \to \infty} \int_{\Omega} f_n \dd{F}$$
+continuously and uniquely extends the operator $f \mapsto \int_{\Omega} f \dd{F}$ to the whole $L^1(\Omega, \mathcal{A}, |F|)$. Thus our integral is well defined.
+
+We summarize the results of this subsection in the following lemma:
+\begin{lem}\label{lem:vector-measure-integration-bounded-op} Let $F$ be a vector measure. The operator $T_F\colon L^1(\Omega, \mathcal{A}, |F|) \to \mathcal{X}$ given by $T_F(f) := \int_{\Omega} f \dd{F}$ is a continuous linear operator with $\|T_F \|_{\mathrm{op}} \leqslant 1$.
+\end{lem}
+\begin{proof} We only need to show that if $f \in L^1(\Omega, \mathcal{A}, |F|)$ then $\| \int_{\Omega} f \dd{F} \| \leqslant \| f \|_1$. We have seen this is true for simple functions, so
+$$\left \| \int_{\Omega} f \dd{F} \right \| = \left \| \lim_{n \to \infty} \int_{\Omega} f_n \dd{F} \right \| \leqslant \lim_{n \to \infty}\| f_n \|_1 = \|f\|_1.$$
+The rest already has been proved above.
+\end{proof}
+\subsection{Absolute continuity}\label{subsec:absolute-continuity}
+
+Let $(\Omega, \mathcal{A}, \mu)$ be a finite measure space and $F \colon \mathcal{A} \to \mathcal{X}$ a vector measure. We say that $F$ is \textbf{absolutely continuous} with respect to $\mu$ if $\mu(A) = 0$ implies $F(A)=0$ for all $A \in \mathcal{A}$.
+
+\begin{lem}\label{lem:vector-measure-absolutely-continous} $F$ is absolutely continuous with respect to $\mu$ if and only if for every $\varepsilon > 0$ there exists a $\delta > 0$ such that if $A \in \mathcal{A}$ with $\mu(A) < \delta$ then $\| F(A) \| < \varepsilon$. \qedb
+\end{lem}
+
+We note that this lemma is often used in literature as the definition of absolute continuity. However, we prefer the definition which we are accustomed to use in real analysis.
+
+\begin{state} Let $F$ be a vector measure of bounded variation such that it is absolutely continuous with respect to a finite, scalar valued measure $\mu$. Then its variation $|F|$ is also absolutely continuous with respect to $\mu$.
+\end{state}
+\begin{proof} Since $F$ is absolutely continuous with respect to $\mu$ we know that if $A \in \mathcal{A}$ with $\mu(A)=0$ then $F(A) = 0$.
+If $\pi$ is a parition of $A$ then for all $C \in \pi$, we have $C \subset A$, and so $\mu(C)=0$. The absolute continuity of $F$ implies that
+$$\sum_{C \in \pi} \| F(C) \| = 0.$$
+Therefore $|F|(A) = 0$, which means that $|F|$ is absolutely continuous with respect to $\mu$.
+\end{proof}
+
+Assume that our vector measure $F$ is given by a Bochner integral with respect to its variation, that is, there exists a Bochner integrable function $f$ such that
+$$F(A) = \int_{A} f \dd{|F|} \quad (A \in \mathcal{A}).$$
+
+Then, by the previous proposition, we know that $|F| \ll \mu$. According to the Radon\---Nikodym theorem there exists a measurable function $g\colon \Omega \to [0, \infty]$ such that
+$$|F|(A) = \int_{A} g \dd{\mu} \quad (A \in \mathcal{A}).$$
+This is the Radon\---Nikodym derivative of $|F|$ with respect to $\mu$, that is,
+$\frac{\dd{|F|}}{\dd{\mu}} \dd{\mu} = g$.
+We use without proof that
+$$\int_{A} f \frac{\dd{|F|}}{\dd{\mu}} \dd{\mu} = \int_{A} f \dd{|F|} = F(A).$$
+Combining these facts yields % Cohn, 127. oldal
+$$F(A) = \int_{A} fg \dd{\mu} \quad (A \in \mathcal{A}).$$
+
+In the next section we investigate that whether a given vector measure possesses this kind of property, namely, whether it can be generated by a Bochner integral with respect to a scalar measure.
+
+\begin{note}[Banach space of vector measures]\normalfont
+Let $M^1(\mathcal{A}, \mathcal{X}, \mu)$ denote the vector space of vector measures of the form $F\colon \mathcal{A} \to \mathcal{X}$ being absolutely continuous with respect to $\mu$. It can be proved that the variation defines a norm on $M^1(\mathcal{A}, \mathcal{X}, \mu)$. In fact, this space is complete with the variation norm and the map $f \mapsto \int_{\Omega} f \dd{\mu}$ is a norm-preserving isomorphism between $L^1(\mathcal{X}; \Omega, \mathcal{A}, \mu)$ and $M^1(\mathcal{A}, \mathcal{X}, \mu)$ \cite{lang} \textit{Corollary 4.3}.
+\end{note}
+
+\paragraph*{References}  Example \ref{all:finitely-additive-but-not-countably-additive-vecmeasure} with proof can be found in \cite{ferrando} \textit{7.1 Preliminaries and Vector Measures}. The proof of Proposition \ref{prop:variation-measure} and Proposition \ref{prop:variation-norm-integral} are the verbose variants of \cite{diestel-uhl} \textit{General Vector Measure Theory: Proposition 9} and \textit{Integration: Theorem 4 (iv)}, respectively. Subsection \ref{subsec:integration-with-respect-to-vector-measures} is based on \cite{dinculeanu} \textit{D.  Integration with respect to vector measures with finite variation}. For a proof of Lemma \ref{lem:vector-measure-absolutely-continous} you may consult \cite{ryan} \textit{Proposition 5.9}.
+
+\section{The Radon\---Nikodym property and Riesz representable operators}\label{sec:radon-nikodym-property}
+
+A Banach space $\mathcal{X}$ has the \textbf{Radon\---Nikodym property} with respect to a finite measure space $(\Omega, \mathcal{A}, \mu)$ if for each absolutely continuous vector measure $F\colon \mathcal{A} \to \mathcal{X}$ of bounded variation there exists $f \in L^1(\mathcal{X}; \Omega, \mathcal{A}, \mu)$ such that 
+$$F(A) = \int_{A} f \dd{\mu} \quad (A \in \mathcal{A}).$$
+We say that $g$ is the \textbf{Radon\---Nikodym derivative} of $G$ with respect to $F$.
+
+An operator $T\colon L^1(\Omega, \mathcal{A}, \mu) \to \mathcal{X}$ is \textbf{(Riesz) representable} if there exists a function $g \in L^{\infty}(\mathcal{X}; \Omega, \mathcal{A}, \mu)$ satisfying
+$$T(f) = \int_{\Omega} f g \dd{\mu} \quad (f \in L^1(\Omega, \mathcal{A}, \mu)).$$
+
+\subsection{The Radon\---Nikodym property and $L^1(\Omega, \mathcal{A}, \mu) \to \mathcal{X}$ operators}
+\begin{lem}\label{lem:spec-representable-op} Let $T \colon L^1(\Omega, \mathcal{A}, \mu) \to \mathcal{X}$ be a continuous linear operator. Let us consider the vector measure $G(A):=T(\mathcal{\chi_A})$ $(A \in \mathcal{A})$.
+
+Then $T$ is representable if and only if the Radon\---Nikodym derivative of $G$ exists, that is, there exists a function $g \in L^1(\mathcal{X}; \Omega, \mathcal{A}, \mu)$ such that
+$$G(A) = \int_{A} g \dd{\mu} \quad (A \in \mathcal{A}).$$
+In this case, we have $g \in L^{\infty}(\mathcal{X}; \Omega, \mathcal{A}, \mu)$,
+$$T(f) = \int_{\Omega} f g \dd{\mu} \quad (f \in L^1(\Omega, \mathcal{A}, \mu)),$$
+and $ \mathrm{ess} \sup_{\Omega} |g| = \| T \|_{\mathrm{op}}.$
+\end{lem}
+
+\begin{proof} \emph{Necessity.} Since $T$ is representable, we can find a function $g$ in $L^{\infty}(\mathcal{X}; \Omega, \mathcal{A}, \mu)$ satisfying $T(f) = \int_{\Omega} f g \dd{\mu}$ for all $f \in L^1(\Omega, \mathcal{A}, \mu).$ It immediately follows that for any $A \in \mathcal{A}$, we have
+$$G(A) = T(\chi_{A}) = \int_{\Omega} \chi_{A} g \dd{\mu} = \int_{A} g \dd{\mu}.$$
+\emph{Sufficiency.} Let $g \in L^1(\mathcal{X}; \Omega, \mathcal{A}, \mu)$ be the Radon\---Nikodym derivative of $G$, that is,
+$$T(\chi_{A})= G(A) = \int_{A} g \dd{\mu} \quad (A \in \mathcal{A}).$$
+Then $\| G(A) \| = \| T(\chi_{A}) \| \leqslant \| T \|_{\mathrm{op}} \| \chi_{A} \|_{L^1} =  \mu(A)\| T \|_{\mathrm{op}}.$
+
+The variation $|G|$ satisfies $|G|(A) \leqslant \| G(A) \|$ (see (\ref{ineq:vector-measures-ineq})). Thus it follows that
+$$|G|(A) \leqslant \mu(A)\| T \|_{\mathrm{op}} \quad (A \in \mathcal{A}).$$
+By Proposition \ref{prop:variation-norm-integral}, we have
+$$|G|(A) = \int_{A} \| g(\omega) \| \dd{\mu} \leqslant \mu(A)\| T \|_{\mathrm{op}},$$
+hence $\| g(\omega) \| \leqslant \| T \|_{\mathrm{op}}$ for $\mu$-almost every $\omega \in \Omega$, that is, $g \in L^{\infty}(\mathcal{X}; \Omega, \mathcal{A}, \mu)$ and $\mathrm{ess} \sup_{\Omega} |g|$ $\leqslant \| T \|_{\mathrm{op}}$.
+By the Bochner theorem (\ref{all:bochner-theorem}) if $f \in L^1(\Omega, \mathcal{A}, \mu)$, then $fg$ is Bochner integrable, so we may define a continuous operator $T'(f) := \int_{\Omega} fg \dd{\mu}$. This operator coincides with $T$ on characteristic functions and since the linear span of them is dense in $L^1(\Omega, \mathcal{A}, \mu)$ we can deduce that $T' = T$.
+
+What is left to show is that $\mathrm{ess} \sup_{\Omega} |g| = \| T \|_{\mathrm{op}}$. Now, we know that
+$$\|T(f) \| = \left \| \int_{\Omega} f g \dd{\mu} \right \|  \leqslant \int_{\Omega} |f(\omega)|\| g(\omega) \| \dd{\mu} \leqslant  \| f \|_{L^1}\left( \mathrm{ess} \sup_{\Omega} |g| \right).$$
+Hence $\| T \|_{\mathrm{op}} \leqslant  \mathrm{ess} \sup_{\Omega} |g|$, and the proof is complete.
+\end{proof}
+
+We are about to prove our main theorem. This theorem states that the Radon\---Nikodym theorem is true for a Banach space $\mathcal{X}$ if and only if the Riesz representation theorem describes all operators $T$ as above.
+\begin{theo}\label{theo:main-result} Let $\mathcal{X}$ be a Banach space and $(\Omega, \mathcal{A}, \mu)$ a finite measure space. Then $X$ has the Radon\---Nikodym property with respect to $(\Omega, \mathcal{A}, \mu)$ if and only if each continuous operator from $L^1(\Omega, \mathcal{A}, \mu)$ into $\mathcal{X}$ is representable.
+\end{theo}
+\begin{proof}
+\emph{Sufficiency.} Let $F \colon \mathcal{A} \to \mathcal{X}$ be a vector measure of bounded variation absolutely continuous with respect to $\mu$. Then $(\Omega, \mathcal{A},|F|)$ is a finite measure space (Proposition \ref{prop:variation-measure}) and thus the operator $T\colon L^1(\Omega, \mathcal{A},|F|) \to \mathcal{X}$  given by $T(f) := \int_{\Omega} f \dd{F}$ is representable (since it is continuous by Lemma \ref{lem:vector-measure-integration-bounded-op}). Therefore, there exists a function $g \in L^\infty(\mathcal{X} ;\Omega, \mathcal{A},|F|)$ such that
+$$T(f)= \int_{\Omega} f g \dd{|F|} \quad (f \in L^1(\Omega, \mathcal{A},|F|)).$$
+Then 
+$$T(\chi_A) = \int_{\Omega} \chi_A \dd{F} = F(A).$$
+On the other hand
+$$T(\chi_A) = \int_{A} g \dd{|F|}.$$
+Thus we have $F(A) = \int_{A} g \dd{|F|}$ for all $A \in \mathcal{A}$ therefore $F$ is Radon\---Nikodym differentiable with respect to $\mu$ (Subsection \ref{subsec:absolute-continuity} is devoted to prove this fact).
+
+\emph{Necessity.} Let $T \colon L^1(\Omega, \mathcal{A}, \mu) \to \mathcal{X}$ be a continuous operator. We have seen that $F(A) = T(\chi_{A})$ defines a vector measure (see Example \ref{ex:vector-measure2}). If $A \in \mathcal{A}$ with $\mu(A) = 0$ then
+$$\| F(A) \| \leqslant \|T\|_{\mathrm{op}}\| \chi_{A} \|_{L^1} \leqslant \lambda(A) \|T\|_{\mathrm{op}}$$
+implies that $F(A) = 0$ thus $F \ll \mu$. Therefore its Radon\---Nikodym derivate $f$ exists and thus Lemma \ref{lem:spec-representable-op} completes the proof.
+\end{proof}
+
+\subsection{Banach spaces with and without the Radon\---Nikodym property}
+\subsubsection*{$c_0$ does not have the Radon\---Nikodym property}
+Let $c_0$ denote the space of real valued sequences converging to $0$ equipped with the supremum norm $\| \cdot \|_{\infty}$. In this example, we consider the measure space $([0,1], \mathcal{A}, \lambda)$ where $\lambda$ is the Lebesgue measure. We define a vector measure $F\colon \mathcal{A} \to c_0$ by
+$$F(A) := \left( \int_{A} \sin(x) \dd{\lambda}, \int_{A} \sin(2x) \dd{\lambda}, \ldots, \int_{A} \sin(nx) \dd{\lambda}, \ldots \right).$$
+We need to show that $F$ maps to $c_0$. The Lebesgue\---Riemann lemma states that if $f \in L^1([0,1], \mathcal{A}, \lambda)$ then
+$$\lim_{n \to \infty} \int^{1}_{0} f(x) \mathrm{e}^{\mathrm{i} n x} \dd{\lambda} = 0.$$
+Applying the lemma with $f(x) := \chi_{A}(x) \in L^1([0,1], \mathcal{A}, \lambda)$ $(A \in \mathcal{A})$ yields that
+$$\lim_{n \to \infty}\int_{A} \sin(nx) \dd{\lambda} = 0.$$
+
+Moreover, our vector measure is absolutely continuous with respect to $\lambda$ and is of bounded variation. The latter follows from $|\sin(x)| \leqslant 1$ $(x \in \mathbb{R})$ thus we have
+$$\int_{A} \sin(n x) \dd{\lambda} \leqslant \lambda(A) \quad (A \in \mathcal{A}).$$
+Assume that $F$ has a Radon\---Nikodym derivative 
+$$g(x) = (g_1(x), g_2(x), \ldots, g_n(x), \ldots) \in L^1(c_0; [0,1], \mathcal{A}, \lambda).$$ 
+Such a derivative should satisfy the relation
+$$\int_{A} \sin(n x) \dd{\lambda} = \int_{A} g_n(x) \dd{\lambda}$$ for all $n \in \mathbb{N}$ and measurable set $A$. It implies that $g_n(x) = \sin(n x)$ for $\lambda$-almost every $x \in [0,1]$. However, if $x$ is in the set $(0,1]$ that has Lebesgue measure $1$, the sequence $(g_n(x))_{n \in \mathbb{N}}$ is not even convergent. Thus $g$ cannot be in $L^1(c_0; [0,1], \mathcal{A}, \lambda)$. We proved that $F$ does not have a Radon\---Nikodym derivative.
+
+Let us consider a linear operator $T\colon L^1([0,1], \mathcal{A}, \lambda) \to c_0$ given by 
+$$T(f) := \left(\int^{1}_{0} f(x) \sin(nx) \dd{\lambda}\right)_{n \in \mathbb{N}}.$$
+It is indeed $c_0$-valued (again, Lebesgue\---Riemann lemma) and is continuous since
+$$\sup_{n \in \mathbb{N}} T(f) \leqslant \sup_{n \in \mathbb{N}} \left(\int^{1}_{0} |f(x) \sin(nx)| \dd{\lambda} \right)_{n \in \mathbb{N}} \leqslant \int^{1}_{0} |f(x)| \dd{\lambda} = \|f\|_1.$$
+In the light of Theorem \ref{theo:main-result} it would not be surprising if could not represent $T$. Now, contrary to our conjecture, suppose that there exists a function $g \in L^\infty(c_0; [0,1], \mathcal{A}, \lambda)$ such that
+$$T(f) = \int^{1}_{0} f g \dd{\lambda} \quad (f \in L^1([0,1], \mathcal{A}, \lambda)).$$
+Then 
+$$F(A) = \left(\int_{A} \sin(nx) \dd{\lambda} \right)_{n \in \mathbb{N}} = T(\chi_{A}) = \int_{A} g \dd{\lambda}$$
+contradicts the fact that $F$ is not Radon\---Nikodym differentiable. Therefore $T$ is not Riesz representable.
+
+\subsubsection*{Hilbert space valued measures have a Radon\--Nikodym derivative}
+% sereg, complex or vectorial measures and duality
+Let $(\mathcal{H}, \langle \cdot, \cdot \rangle_{\mathcal{H}})$ be a real Hilbert space and $(\Omega, \mathcal{A}, \mu)$ a finite measure space. Consider an arbitrary vector measure $F \colon \mathcal{A} \to \mathcal{H}$ of bounded variation such that $F \ll \mu$.
+
+Let $f:\Omega \to \mathcal{H}$ be an $|F|$-simple function, that is,
+$$f(\omega) = \sum^{n}_{i=1} v_i \chi_{A_i}(\omega) \quad (v_i \in \mathcal{H})$$
+where $A_i \in \mathcal{A}$ $(i = 1,2,\ldots, n)$ are disjoint and having finite $|F|$-measure.
+
+We recall that, in Subsection \ref{subsec:integration-with-respect-to-vector-measures}, we have already introduced an integration method with respect to vector measures. However, we could not integrate vector valued but only scalar valued $|F|$-simple functions. The reason for that was obvious as we could not interpret the product $x_i \cdot F(A_i)$ $(x_i \in \mathcal{X})$ in Banach spaces.
+
+We will resolve this issue in Hilbert spaces if we redefine our integral with the help of inner products:
+$$\int_{\Omega} f \dd{F} := \sum^{n}_{i=1} \langle  F(A_i), v_i\rangle.$$
+The same procedure as before applies here when we try to extend this integral for Hilbert space valued functions, namely, we prove that $f \mapsto \int_{\Omega} f \dd{F}$ is a continuous functional and then we extend it to a bigger space. First, we prove that $f \mapsto \int_{\Omega} f \dd{F}$ is $L^2(\mathcal{H}; \Omega, \mathcal{A}, |F|)$-continuous on $|F|$-simple functions.
+
+Since $A_i$ $(i = 1,2, \ldots,n)$ are disjoint, we have
+$$\| f(\omega)\|_{\mathcal{H}} = \sum^{n}_{i=1} \| v_i \|_{\mathcal{H}} \chi_{A_i}(\omega),$$
+in addition, we know that $\| F(A) \|_{\mathcal{H}} \leqslant |F|(A)$ thus 
+$$|\langle F(A_i), v_i\rangle| \leqslant \| v_i \|_{\mathcal{H}} \| F(A_i) \|_{\mathcal{H}} \leqslant \| v_i \|_{\mathcal{H}} |F|(A_i).$$ 
+Then, by the Cauchy\---Schwarz inequality
+\begin{equation*}
+\begin{split}
+\left | \int_{\Omega} f \dd{F} \right | \leqslant \sum^{n}_{i=1} |\langle F(A_i), v_i \rangle | \leqslant \sum^{n}_{i=1} \| v_i \|_{\mathcal{H}}  \| F(A_i) \|_{\mathcal{H}} \leqslant \\
+\int_{\Omega} \| f(\omega) \|_{\mathcal{H}} \dd{|F|(\omega)} = \int_{\Omega} \| 1_{\Omega}(\omega) \|_{\mathcal{H}} \| f(\omega) \|_{\mathcal{H}} \dd{|F|(\omega)} = \\ \langle \| 1_{\Omega}(\omega) \|_{\mathcal{H}}, \| f(\omega)\|_{\mathcal{H}} \rangle_{L^2} \leqslant \| 1_{\Omega} \|_{L^2} \| f \|_{L^2}
+\end{split}
+\end{equation*}
+where $\| \cdot \|_{L^2}$ denotes the usual norm on either $L^2(\mathcal{H}; \Omega, \mathcal{A}, |F|)$ or $L^2(\Omega, \mathcal{A}, |F|)$, and
+$$1_{A}(\omega) := \left\{
+    \begin{array}{ll}
+      e, & \omega \in A \\
+      \underline{0}, &\text{ otherwise}
+    \end{array}
+\right. \quad (A \in \mathcal{A})$$
+where $e$ is a vector with $\| e\|_{\mathcal{H}}=1$ and $\underline{0}$ is the null vector of $\mathcal{H}$.
+ 
+Finally, it follows that we can extend $f \mapsto \int_{\Omega} f \dd{F}$ to a unique continuous functional on $L^2(\mathcal{H};\Omega, \mathcal{A}, |F|)$.
+
+We can use the classical Riesz representation theorem for Hilbert spaces, that is, there exists an element $g \in L^2(\mathcal{H}; \Omega, \mathcal{A}, |F|)$ such that
+$$ \int_{\Omega} f \dd{F} = \langle f, g \rangle_{L^2} = \int_{\Omega} \langle f(\omega), g(\omega) \rangle_{\mathcal{H}} \dd{|F|(\omega)} \quad (f \in L^2(\mathcal{H}; \Omega, \mathcal{A}, |F|)).$$
+Now, let $h: \Omega \to [0, \infty]$ be the Radon\---Nikodym derivative of the scalar measure $|F|$ with respect to $\mu$, that is,
+$$h = \frac{\dd{|F|}}{\dd{\mu}}.$$
+It follows that
+\begin{equation*}
+\begin{split}
+\int_{\Omega} h(\omega)\langle f(\omega), g(\omega) \rangle_{\mathcal{H}} \dd{\mu(\omega)} = \int_{\Omega}  \langle f(\omega), g(\omega) \rangle_{\mathcal{H}} \frac{\dd{|F|}}{\dd{\mu}} \dd{\mu(\omega)} = \\ \int_{\Omega} \langle f(\omega), g(\omega) \rangle_{\mathcal{H}} \dd{|F|(\omega)} = \int_{\Omega} f \dd{F}.
+\end{split}
+\end{equation*}
+We would like to establish a connection between the integral defined in Subsection \ref{subsec:integration-with-respect-to-vector-measures} and this new integral. To do this, we consider a vector measure $F^* \colon \mathcal{A} \to \mathcal{H}^*$ of bounded variation which is absolutely continuous with respect to $\mu$. 
+
+Let $f$ be a real valued simple function in the following form
+$$f(\omega) = \sum^{n}_{i=1} \alpha_i \chi_{A_i} \quad (\alpha_i \in \mathbb{R}).$$
+Integrating $f$ with respect to $F^*$, by definition, we get
+$$\left(\int_{\Omega} \sum^{n}_{i=1} \alpha_i \chi_{A_i} \dd{F^*}\right)(v) = \left(\sum^{n}_{i=1} \alpha_i F^*(A_i)\right)(v) = \sum^{n}_{i=1} \alpha_i \langle F(A_i), v \rangle \quad (v \in \mathcal{H})$$
+where $F(A_i)$ denotes the Riesz representant of the functional $F^*(A_i)$. Notice that the right hand side is equal to
+the integral of $\sum^{n}_{i=1} \alpha_i v \chi_{A_i}$ with respect to $F$, that is,
+$$\int_{\Omega} \sum^{n}_{i=1} \alpha_i v \chi_{A_i}(\omega) \dd{F(\omega)} = \sum^{n}_{i=1} \alpha_i  \langle F(A_i), v \rangle.$$
+
+In other words, we proved that if $f$ is a simple function then
+$$\left(\int_{\Omega} f \dd{F^*}\right)(v) = \int_{\Omega} f(\omega)v \dd{F(\omega)} = \int_{\Omega} h(\omega)\langle f(\omega)v, g(\omega) \rangle_{\mathcal{H}} \dd{\mu(\omega)} \quad (v \in \mathcal{H}).$$
+Since
+$$\int_{\Omega} \chi_A \dd{F^*} = F^*(A),$$
+we can conclude that
+$$F^*(A)(v) = \int_{A} v \dd{F} = \int_{A} h(\omega)\langle v, g(\omega) \rangle_{\mathcal{H}} \dd{\mu(\omega)} \quad (A \in \mathcal{A}, v \in \mathcal{H}),$$
+that is, the Radon\---Nikodym derivative of $F^*$ with respect to $\mu$ is
+$$\omega \mapsto h(\omega)\langle \cdot , g(\omega) \rangle_{\mathcal{H}} \in L^1(\mathcal{H^*}; \Omega, \mathcal{A}, \mu).$$
+Finally, $\mathcal{H}$ is isometrically isomorphic to its dual space and thus we proved that $\mathcal{H}$ has the Radon\---Nikodym property.
+
+\begin{note}\normalfont In fact, we also proved that the relation
+$$\left(\int_{\Omega} f \dd{F^*}\right)(v) = \int_{\Omega} f(\omega)v \dd{F(\omega)} = \int_{\Omega} h(\omega)\langle f(\omega)v, g(\omega) \rangle_{\mathcal{H}} \dd{\mu(\omega)} \quad (v \in \mathcal{H}) $$
+holds for all $f \in L^2(\Omega, \mathcal{A}, |F^*|)$ since simple functions form a dense subspace of $L^2$.
+\end{note}
+
+Before closing this part, it should be noted that there is a more general result stating that all reflexive Banach spaces have the Radon\---Nikodym property and reflexive spaces, among others, include Hilbert spaces.
+
+It has also been proven that if $\mathcal{X}$ has the Radon\---Nikodym property, then so does $L^p(\mathcal{X}; \Omega, \mathcal{A}, \mu)$ $(1 < p < \infty)$. 
+
+If $\mathcal{X}$ is a \textbf{separable dual space}, that is, $\mathcal{X}$ is separable such that $\mathcal{X}= \mathcal{Y}^*$ for some Banach space $\mathcal{Y}$ the following holds:
+
+\begin{theo}[Dunford\---Pettis] Let $\mathcal{X}$ be a separable dual Banach space. Then $\mathcal{X}$ has the Radon\---Nikodym property. \qedb
+\end{theo}
+
+
+\paragraph*{References} In this section, I relied on the following sources: \cite{ryan} \textit{5.1 Vector Measures and the Radon\---Nikodym property}, \textit{5.4 Operators on $L_1(\mu)$ spaces}. \cite{lang} \textit{VII, §4. Complex or Vectorial Measures and Duality} and \cite{diestel-uhl} \textit{III. Analytic Radon\---Nikodym Theorems and Operators on $L_1(\mu)$}.
+
+\newpage
+\appendix
+
+\section{Sequences and series in Banach spaces}\label{sec:sequences-and-series}
+
+A wide variety of notions of convergence regarding series and sequences have been proposed in Banach spaces. In what follows, we present some of them, and we state some theorems which will turn out to be valuable when we characterize the integrability of Banach space valued functions.
+
+\begin{defin}\label{all:unconditionally-convergent} Let $(x_n)_{n \in \mathbb{N}}$ be a sequence in $\mathcal{X}$ such that for any bijection $\sigma \colon \mathbb{N} \to \mathbb{N}$ the sequence $(x_{\sigma(n)})_{n \in \mathbb{N}}$ is convergent. Then we say that $(x_n)_{n \in \mathbb{N}}$ is \textbf{unconditionally convergent}.
+\end{defin}
+
+\begin{defin}
+Let $(x_n)_{n \in \mathbb{N}}$ be a sequence in $\mathcal{X}$ such that $(x^*(x_n))_{n \in \mathbb{N}}$ is convergent in $\mathbb{K}$ for all $x^* \in \mathcal{X}^*$. Then we say that $(x_n)_{n \in \mathbb{N}}$ is \textbf{weakly convergent}.
+\end{defin}
+
+\begin{defin} Let $(x_n)_{n \in \mathbb{N}}$ be a sequence in $\mathcal{X}$ such that $(x^*(x_n))_{n \in \mathbb{N}}$ is absolutely convergent in $\mathbb{K}$ for all $x^* \in \mathcal{X}^*$. The we say that $(x_n)_{n \in \mathbb{N}}$ is \textbf{weakly absolutely convergent}.
+\end{defin}
+
+\begin{note}\normalfont All of the above stated definitions can be extended to series in the usual way.
+\end{note}
+
+\begin{defin}Let $(x_n)_{n \in \mathbb{N}}$ be a sequence in $\mathcal{X}$ such that $(x^*(x_n))_{n \in \mathbb{N}}$ is a Cauchy sequence in $\mathbb{K}$ for all $x^* \in \mathcal{X}^*$. Then we say that $(x_n)_{n \in \mathbb{N}}$ is a \textbf{weak Cauchy sequence}.
+\end{defin}
+
+\begin{note}\normalfont It can be easily shown that every convergent sequence (or equivalently Cauchy sequence) in a Banach space is a weak Cauchy sequence. However, it is generally not true that every weak Cauchy sequence has a weak limit in a Banach space. \end{note}
+
+\begin{defin}\label{def:weakly-seq-complete} A Banach space $\mathcal{X}$ is \textbf{weakly sequentially complete} if every weak Cauchy sequence has a weak limit in $\mathcal{X}$.
+\end{defin}
+
+\begin{theo}[Bessaga\---Pełczyński] \label{all:bessaga-pelczynski-theorem} A Banach space $\mathcal{X}$ does not contain subspaces isomorphic to $c_0$ if and only if every weakly absolutely convergent series in $\mathcal{X}$ is unconditionally convergent. \qedb %% 55 old. Theorem 8
+\end{theo}
+
+\begin{theo}[Orlicz\---Pettis] \label{all:orlicz-pettis-theorem} Let $\sum^{\infty}_{n=1} x_k$ be a series in a Banach space $\mathcal{X}$. Assume that for each set $A \subset \mathbb{N}$ there exists $x_A \in \mathcal{X}$ such that for each $x^* \in \mathcal{X}^*$ we have $\sum\limits_{n \in A} x^*(x_n) = x^*(x_A)$. Then the series $\sum^{\infty}_{n=1} x_k$ is unconditionally convergent. \qedb
+\end{theo}
+
+\begin{theo}[Dvoretzky\---Rogers]\label{all:dvoretzky-rogers-theorem} Let $\mathcal{X}$ be an infinite dimensional Banach space. Then for every sequence $(c_n)_{n \in \mathbb{N}}$ with $c_n > 0$ and $\sum^{\infty}_{n=1} c^2_n < \infty$ there is an unconditionally convergent series $\sum^{\infty}_{k=1} x_k$ in $\mathcal{X}$ for which $\| x_n \| = c_n$ $(n \in \mathbb{N})$. \qedb
+\end{theo}
+
+\begin{note}\normalfont If we take $c_n := 1/n$ $(n \in \mathbb{N})$ we know that $\sum^{\infty}_{n=1} 1/n^2 = \pi^2/6$ and $\sum^{\infty}_{n=1} 1/n = \infty$. Consequently, every infinite dimensional Banach space admits at least one unconditionally convergent series which is not absolutely convergent. \end{note}
+
+\paragraph*{References} This appendix is based on \cite{schwabik} \textit{Appendix B Series in Banach spaces}.
+
+\newpage
+\printbibliography
+\addcontentsline{toc}{section}{References}
+\end{document}
